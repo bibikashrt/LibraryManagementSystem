@@ -1,34 +1,11 @@
 
 import java.util.Scanner;
 
-enum MenuOption {
-    ADD_BOOK(1), VIEW_BOOKS(2), UPDATE_BOOK(3), DELETE_BOOK(4), SEARCH_BOOK(5), EXIT(6);
-
-    private final int value;
-
-    MenuOption(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public static MenuOption fromInt(int value) {
-        for (MenuOption option : MenuOption.values()) {
-            if (option.getValue() == value) {
-                return option;
-            }
-        }
-        return null;
-    }
-}
-
 public class Main {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        LibraryManager library = new LibraryManager();
+        LibraryManager library = new LibraryManagerImpl();
         MenuOption choice;
 
         System.out.println("Library Management System Started.");
@@ -40,6 +17,7 @@ public class Main {
             System.out.print("Enter your choice: ");
 
             while (!sc.hasNextInt()) {
+                System.out.println("Enter numbers only for menu choice");
                 sc.next();
             }
             choice = MenuOption.fromInt(sc.nextInt());
@@ -52,7 +30,15 @@ public class Main {
 
             switch (choice) {
                 case ADD_BOOK: {
-                    int id = readInt(sc, "Enter Book ID: ");
+                    int id;
+                    while (true) {
+                        id = readInt(sc, "Enter Book ID: ");
+                        if (library.isDuplicateBookId(id)) {
+                            System.out.println("ID already exists. Please enter a different Book ID.");
+                        } else {
+                            break;
+                        }
+                    }
                     System.out.print("Enter Book Name: ");
                     String name = sc.nextLine();
                     System.out.print("Enter Author Name: ");
@@ -69,33 +55,25 @@ public class Main {
                     break;
 
                 case UPDATE_BOOK: {
-                    System.out.print("Enter field to update (BookID, BookName, Author, Category, Year): ");
-                    String updateField = sc.nextLine();
-                    System.out.print("Enter value to search: ");
-                    String sValue = sc.nextLine();
-                    // System.out.print("Enter field to update (BookID, BookName, Author, Category, Year): ");
-                    // String updateField = sc.nextLine();
+                    System.out.print("Enter existing value: ");
+                    String oldValue = sc.nextLine();
                     System.out.print("Enter new value: ");
                     String newValue = sc.nextLine();
-                    library.updateBook(updateField, sValue, newValue);
+                    library.updateBook(oldValue, newValue);
                     break;
                 }
 
                 case DELETE_BOOK: {
-                    System.out.print("Enter field to delete by (BookID, BookName, Author, Category, Year): ");
-                    String delField = sc.nextLine();
                     System.out.print("Enter value to delete: ");
                     String delValue = sc.nextLine();
-                    library.deleteBook(delField, delValue);
+                    library.deleteBook(delValue);
                     break;
                 }
 
                 case SEARCH_BOOK: {
-                    System.out.print("Enter field to search by (BookID, BookName, Author, Category, Year): ");
-                    String searchField = sc.nextLine();
                     System.out.print("Enter value to search: ");
-                    String searchValue = sc.nextLine();
-                    library.searchBook(searchField, searchValue);
+                    String value = sc.nextLine();
+                    library.searchBook(value);
                     break;
                 }
 

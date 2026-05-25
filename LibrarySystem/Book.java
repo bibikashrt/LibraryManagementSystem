@@ -70,21 +70,36 @@ public class Book {
         );
     }
 
-    public boolean matchesField(String fieldName, String value) {
-        switch (fieldName) {
-            case "BookID":
-                return String.valueOf(bookId).equals(value.trim());
-            case "BookName":
-                return bookName.equalsIgnoreCase(value.trim());
-            case "Author":
-                return authorName.equalsIgnoreCase(value.trim());
-            case "Category":
-                return category.equalsIgnoreCase(value.trim());
-            case "Year":
-                return String.valueOf(publicationYear).equals(value.trim());
-            default:
-                return false;
+    public String matchesAnyField(String value) {
+
+        value = value.trim();
+
+        if (String.valueOf(bookId).equalsIgnoreCase(value)) {
+
+            return "BookID";
         }
+
+        if (bookName.equalsIgnoreCase(value)) {
+
+            return "BookName";
+        }
+
+        if (authorName.equalsIgnoreCase(value)) {
+
+            return "Author";
+        }
+
+        if (category.equalsIgnoreCase(value)) {
+
+            return "Category";
+        }
+
+        if (String.valueOf(publicationYear).equalsIgnoreCase(value)) {
+
+            return "Year";
+        }
+
+        return null;
     }
 
     @Override
