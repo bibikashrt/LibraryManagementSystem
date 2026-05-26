@@ -13,31 +13,42 @@ public class CsvBookRepository implements BookRepository {
     }
 
     private void ensureHeaderExists() {
+
         File file = new File(FILE_NAME);
+
         try {
+
             if (!file.exists() || file.length() == 0) {
+
                 try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME))) {
+
                     bw.write(String.join(",", headers));
+
                     bw.newLine();
-                    bw.flush();
-                    System.out.println("books.csv created with header.");
                 }
+
             }
+
         } catch (IOException e) {
-            System.out.println("Error creating file with header: " + e.getMessage());
+
+            throw new RuntimeException("Error creating file", e);
         }
     }
 
     @Override
     public void addBook(Book book) {
+
         ensureHeaderExists();
-        try {
-            List<Book> books = getAllBooks();
-            books.add(book);
-            saveAll(books);
-            System.out.println("Book added successfully.");
-        } catch (Exception e) {
-            System.out.println("Error adding book: " + e.getMessage());
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
+
+            bw.write(book.toCSV());
+
+            bw.newLine();
+
+        } catch (IOException e) {
+
+            throw new RuntimeException("Error adding file", e);
         }
     }
 
@@ -50,190 +61,56 @@ public class CsvBookRepository implements BookRepository {
             while ((line = br.readLine()) != null && !line.trim().isEmpty()) {
                 books.add(Book.fromCSV(line));
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading books", e);
         }
+        books.sort(Comparator.comparingInt(Book::getBookId));
         return books;
     }
 
     @Override
-    public List<Book> searchBooks(String value) {
+    public List<Book> searchBooks(String field, String value) {
 
         List<Book> results = new ArrayList<>();
 
         for (Book b : getAllBooks()) {
 
-            String field = b.matchesAnyField(value);
-
-            if (field != null) {
+            if (b.matches(field, value)) {
 
                 results.add(b);
             }
+
         }
 
         return results;
     }
 
     @Override
-    public void updateBook(String searchValue, String newValue) {
+    public void updateBook(Book updatedBook) {
 
         List<Book> books = getAllBooks();
 
-        List<Book> matchedBooks = new ArrayList<>();
+        for (int i = 0; i < books.size(); i++) {
 
-        List<String> matchedFields = new ArrayList<>();
+            if (books.get(i).getBookId() == updatedBook.getBookId()) {
 
-        for (Book b : books) {
+                books.set(i, updatedBook);
 
-            String field = b.matchesAnyField(searchValue);
-
-            if (field != null) {
-
-                matchedBooks.add(b);
-
-                matchedFields.add(field);
+                break;
             }
-        }
-
-        if (matchedBooks.isEmpty()) {
-
-            System.out.println("No matching book found");
-
-            return;
-        }
-
-        Scanner sc = new Scanner(System.in);
-
-        int choice = 1;
-
-        if (matchedBooks.size() > 1) {
-
-            System.out.println("Multiple matches found:");
-
-            for (int i = 0; i < matchedBooks.size(); i++) {
-
-                System.out.println(
-                        (i + 1)
-                        + ". "
-                        + matchedFields.get(i)
-                        + " -> "
-                        + matchedBooks.get(i));
-            }
-
-            System.out.print("Choose option: ");
-
-            choice = Integer.parseInt(sc.nextLine());
-        }
-
-        Book selectedBook = matchedBooks.get(choice - 1);
-
-        String field = matchedFields.get(choice - 1);
-
-        switch (field) {
-
-            case "BookID":
-
-                int newId = Integer.parseInt(newValue);
-
-                boolean duplicate = books.stream().anyMatch(b -> b.getBookId() == newId);
-
-                if (duplicate) {
-
-                    System.out.println("ID already exists");
-
-                    return;
-                }
-
-                selectedBook.setBookId(newId);
-
-                break;
-
-            case "BookName":
-
-                selectedBook.setBookName(newValue);
-                break;
-
-            case "Author":
-
-                selectedBook.setAuthorName(newValue);
-                break;
-
-            case "Category":
-
-                selectedBook.setCategory(newValue);
-                break;
-
-            case "Year":
-
-                selectedBook.setPublicationYear(Integer.parseInt(newValue));
-                break;
         }
 
         saveAll(books);
-
-        System.out.println("Update successful.");
     }
 
     @Override
-    public void deleteBook(String value) {
+    public void deleteBook(Book selectedBook) {
 
         List<Book> books = getAllBooks();
 
-        List<Book> matchedBooks = new ArrayList<>();
-
-        List<String> matchedFields = new ArrayList<>();
-
-        for (Book b : books) {
-
-            String field = b.matchesAnyField(value);
-
-            if (field != null) {
-
-                matchedBooks.add(b);
-
-                matchedFields.add(field);
-            }
-        }
-
-        if (matchedBooks.isEmpty()) {
-
-            System.out.println("No matching book found");
-
-            return;
-        }
-
-        Scanner sc = new Scanner(System.in);
-
-        int choice = 1;
-
-        if (matchedBooks.size() > 1) {
-
-            System.out.println("Multiple matches found:");
-
-            for (int i = 0;
-                    i < matchedBooks.size();
-                    i++) {
-
-                System.out.println(
-                        (i + 1)
-                        + ". "
-                        + matchedFields.get(i)
-                        + " -> "
-                        + matchedBooks.get(i));
-            }
-
-            System.out.print("Choose option: ");
-
-            choice = Integer.parseInt(sc.nextLine());
-        }
-
-        Book selectedBook = matchedBooks.get(choice - 1);
-
-        books.remove(selectedBook);
+        books.removeIf(b -> b.getBookId() == selectedBook.getBookId());
 
         saveAll(books);
-
-        System.out.println("Book deleted successfully.");
     }
 
     private void saveAll(List<Book> books) {
@@ -246,7 +123,7 @@ public class CsvBookRepository implements BookRepository {
                 bw.newLine();
             }
         } catch (IOException e) {
-            System.out.println("Error writing file: " + e.getMessage());
+            throw new RuntimeException("Error saving books", e);
         }
     }
 }

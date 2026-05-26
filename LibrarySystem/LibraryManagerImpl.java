@@ -1,4 +1,6 @@
 
+import java.util.List;
+
 public class LibraryManagerImpl implements LibraryManager {
 
     private final BookRepository repository;
@@ -19,30 +21,22 @@ public class LibraryManagerImpl implements LibraryManager {
     }
 
     @Override
-    public void viewBooks() {
-        System.out.println("\nBook List");
-        for (Book book : repository.getAllBooks()) {
-            System.out.println(book);
-        }
+    public List<Book> viewBooks() {
+        return repository.getAllBooks();
     }
 
     @Override
-    public void searchBook(String value) {
-        var results = repository.searchBooks(value);
-        if (results.isEmpty()) {
-            System.out.println("No matching book found");
-        } else {
-            results.forEach(System.out::println);
-        }
+    public List<Book> searchBook(String field, String value) {
+        return repository.searchBooks(field, value);
     }
 
     @Override
-    public void updateBook(String searchvalue, String newValue) {
-        repository.updateBook(searchvalue, newValue);
+    public void updateBook(Book book) {
+        repository.updateBook(book);
     }
 
     @Override
-    public void deleteBook(String value) {
-        repository.deleteBook(value);
+    public void deleteBook(Book book) {
+        repository.deleteBook(book);
     }
 }

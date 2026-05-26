@@ -70,36 +70,31 @@ public class Book {
         );
     }
 
-    public String matchesAnyField(String value) {
+    public boolean matches(String field, String value) {
 
         value = value.trim();
 
-        if (String.valueOf(bookId).equalsIgnoreCase(value)) {
+        switch (field.toLowerCase()) {
 
-            return "BookID";
+            case "id":
+                return String.valueOf(bookId)
+                        .equalsIgnoreCase(value);
+
+            case "name":
+                return bookName.toLowerCase().contains(value.toLowerCase());
+            case "author":
+                return authorName.toLowerCase().contains(value.toLowerCase());
+
+            case "category":
+                return category.toLowerCase().contains(value.toLowerCase());
+
+            case "year":
+                return String.valueOf(publicationYear)
+                        .equalsIgnoreCase(value);
+
+            default:
+                return false;
         }
-
-        if (bookName.equalsIgnoreCase(value)) {
-
-            return "BookName";
-        }
-
-        if (authorName.equalsIgnoreCase(value)) {
-
-            return "Author";
-        }
-
-        if (category.equalsIgnoreCase(value)) {
-
-            return "Category";
-        }
-
-        if (String.valueOf(publicationYear).equalsIgnoreCase(value)) {
-
-            return "Year";
-        }
-
-        return null;
     }
 
     @Override

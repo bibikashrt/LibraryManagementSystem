@@ -1,16 +1,17 @@
 
+import java.util.List;
+
 public interface LibraryManager {
 
     boolean isDuplicateBookId(int id);
 
     void addBook(Book book);
 
-    void viewBooks();
+    List<Book> viewBooks();
 
-    void searchBook(String value);
+    List<Book> searchBook(String field, String value);
 
-    void updateBook(String searchvalue,
-            String newValue);
+    void updateBook(Book book);
 
-    void deleteBook(String value);
+    void deleteBook(Book book);
 }
