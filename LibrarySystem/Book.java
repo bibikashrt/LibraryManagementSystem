@@ -56,11 +56,11 @@ public class Book {
     }
 
     public String toCSV() {
-        return bookId + "," + bookName + "," + authorName + "," + category + "," + publicationYear;
+        return bookId + "|" + bookName + "|" + authorName + "|" + category + "|" + publicationYear;
     }
 
     public static Book fromCSV(String line) {
-        String[] parts = line.split(",");
+        String[] parts = line.split("\\|");
         return new Book(
                 Integer.parseInt(parts[0].trim()),
                 parts[1].trim(),
@@ -99,7 +99,16 @@ public class Book {
 
     @Override
     public String toString() {
-        return "ID: " + bookId + " | Name: " + bookName + " | Author: " + authorName
-                + " | Category: " + category + " | Year: " + publicationYear;
+
+        return "ID: "
+                + bookId
+                + " | Name: "
+                + bookName
+                + " | Author: "
+                + authorName
+                + " | Category: "
+                + category
+                + " | Year: "
+                + publicationYear;
     }
 }

@@ -25,7 +25,7 @@ public class Main {
 
             if (choice == null) {
 
-                System.out.println("Invalid");
+                System.out.println("Invalid choice. Please enter a number between 1 and 6.");
 
                 continue;
             }
@@ -40,28 +40,24 @@ public class Main {
 
                         id = readInt(sc, "Book ID: ");
 
-                        if (library.isDuplicateBookId(id)) {
+                        if (id <= 0) {
+                            System.out.println("Book ID must be a positive number.");
+                        } else if (library.isDuplicateBookId(id)) {
 
-                            System.out.println("Duplicate ID");
+                            System.out.println("Duplicate ID. Please enetr a different ID.");
                         } else {
 
                             break;
                         }
                     }
 
-                    System.out.print("Name:");
+                    String name = readNonBlank(sc, "Name:");
 
-                    String name = sc.nextLine();
+                    String author = readNonBlank(sc, "Author:");
 
-                    System.out.print("Author:");
+                    String category = readNonBlank(sc, "Category:");
 
-                    String author = sc.nextLine();
-
-                    System.out.print("Category:");
-
-                    String category = sc.nextLine();
-
-                    int year = readInt(sc, "Year:");
+                    int year = readYear(sc, "Year:");
 
                     library.addBook(
                             new Book(
@@ -72,7 +68,7 @@ public class Main {
                                     year
                             ));
 
-                    System.out.println("Added");
+                    System.out.println("Book added successfully");
 
                     break;
 
@@ -110,18 +106,19 @@ public class Main {
 
                 case EXIT:
 
-                    System.out.println("Exiting...");
+                    System.out.println("Goodbye! Thank you for using the Library System.");
             }
 
-        } while (choice
-                != MenuOption.EXIT);
+        } while (choice != MenuOption.EXIT);
     }
 
     static void handleSearch(Scanner sc, LibraryManager library) {
 
         String field = askField(sc);
 
-        System.out.print("Enter search value:");
+        System.out.println("\nSearch books");
+
+        System.out.print("Enter book information: ");
 
         String value = sc.nextLine();
 
@@ -129,7 +126,7 @@ public class Main {
 
         if (books.isEmpty()) {
 
-            System.out.println("Not matching books found");
+            System.out.println("No matching books found");
 
             return;
         }
@@ -141,7 +138,9 @@ public class Main {
 
         String field = askField(sc);
 
-        System.out.print("Enter value to delete:");
+        System.out.println("\nFind the book you want to delete");
+
+        System.out.print("Search book to delete: ");
 
         String value = sc.nextLine();
 
@@ -149,7 +148,7 @@ public class Main {
 
         if (books.isEmpty()) {
 
-            System.out.println("Not matching books found");
+            System.out.println("No matching books found");
 
             return;
         }
@@ -172,11 +171,18 @@ public class Main {
 
         System.out.println(selected);
 
+        System.out.println("\nAre you sure you want to delete this book?");
+
         System.out.println("1.Yes");
 
         System.out.println("2.No");
 
         ConfirmationOption confirm = ConfirmationOption.fromInt(readInt(sc, "Confirm:"));
+
+        if (confirm == null) {
+            System.out.println("Invalid choice. Deletion cancelled.");
+            return;
+        }
 
         if (confirm == ConfirmationOption.YES) {
 
@@ -191,7 +197,9 @@ public class Main {
 
         String field = askField(sc);
 
-        System.out.print("Enter value to update:");
+        System.out.println("\nFind the book you want to update");
+
+        System.out.print("Search book to update: ");
 
         String value = sc.nextLine();
 
@@ -199,7 +207,7 @@ public class Main {
 
         if (books.isEmpty()) {
 
-            System.out.println("Not matching books found");
+            System.out.println("No matching books found");
 
             return;
         }
@@ -212,8 +220,7 @@ public class Main {
 
         if (b == null) {
 
-            System.out.println("Invalid ID selected."
-            );
+            System.out.println("Invalid ID selected.");
 
             return;
         }
@@ -228,7 +235,14 @@ public class Main {
 
         System.out.println("5.All");
 
-        UpdateOption option = UpdateOption.fromInt(readInt(sc, "Choose:"));
+        UpdateOption option = UpdateOption.fromInt(readInt(sc, "Choose option. Please select number between 1 to 5:"));
+
+        if (option == null) {
+
+            System.out.println("Invalid choice. Update cancelled.");
+
+            return;
+        }
 
         String name = b.getBookName();
         String author = b.getAuthorName();
@@ -237,7 +251,7 @@ public class Main {
 
         switch (option) {
 
-            case BookNAME:
+            case BOOK_NAME:
 
                 System.out.print("New Name:");
 
@@ -304,7 +318,7 @@ public class Main {
         System.out.println("4.Category");
         System.out.println("5.Year");
 
-        int c = readInt(sc, "Search By:");
+        int c = readInt(sc, "Search option. Please enter number between 1 to 5:");
 
         switch (c) {
 
@@ -336,8 +350,40 @@ public class Main {
 
             } catch (Exception e) {
 
-                System.out.println("Invalid");
+                System.out.println("Invalid. Please enter a number.");
             }
+        }
+    }
+
+    static String readNonBlank(Scanner sc, String prompt) {
+
+        while (true) {
+
+            System.out.print(prompt);
+
+            String input = sc.nextLine().trim();
+
+            if (!input.isEmpty()) {
+
+                return input;
+            }
+
+            System.out.println("This field cannot be empty. Please try again.");
+        }
+    }
+
+    static int readYear(Scanner sc, String prompt) {
+
+        while (true) {
+
+            int year = readInt(sc, prompt);
+
+            if (year >= 1000 && year <= 2100) {
+
+                return year;
+            }
+
+            System.out.println("Please enter a valid year between 1000 and 2100.");
         }
     }
 

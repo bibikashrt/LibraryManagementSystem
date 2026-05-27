@@ -38,8 +38,6 @@ public class CsvBookRepository implements BookRepository {
     @Override
     public void addBook(Book book) {
 
-        ensureHeaderExists();
-
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
 
             bw.write(book.toCSV());

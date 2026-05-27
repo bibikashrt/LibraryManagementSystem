@@ -1,7 +1,7 @@
 
 public enum UpdateOption {
 
-    BookNAME(1),
+    BOOK_NAME(1),
     AUTHOR(2),
     CATEGORY(3),
     YEAR(4),
