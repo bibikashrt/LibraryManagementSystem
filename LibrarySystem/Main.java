@@ -6,8 +6,9 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
+        BookRepository repository = new CsvBookRepository("books.csv");
 
-        LibraryManager library = new LibraryManagerImpl();
+        LibraryManager library = new LibraryManagerImpl(repository);
 
         MenuOption choice;
 
@@ -44,7 +45,7 @@ public class Main {
                             System.out.println("Book ID must be a positive number.");
                         } else if (library.isDuplicateBookId(id)) {
 
-                            System.out.println("Duplicate ID. Please enetr a different ID.");
+                            System.out.println("Duplicate ID. Please enter a different ID.");
                         } else {
 
                             break;
@@ -107,14 +108,16 @@ public class Main {
                 case EXIT:
 
                     System.out.println("Goodbye! Thank you for using the Library System.");
+
+                    break;
             }
 
         } while (choice != MenuOption.EXIT);
+
+        sc.close();
     }
 
     static void handleSearch(Scanner sc, LibraryManager library) {
-
-        String field = askField(sc);
 
         System.out.println("\nSearch books");
 
@@ -122,7 +125,7 @@ public class Main {
 
         String value = sc.nextLine();
 
-        List<Book> books = library.searchBook(field, value);
+        List<Book> books = library.searchBook(value);
 
         if (books.isEmpty()) {
 
@@ -136,15 +139,13 @@ public class Main {
 
     static void handleDelete(Scanner sc, LibraryManager library) {
 
-        String field = askField(sc);
-
         System.out.println("\nFind the book you want to delete");
 
         System.out.print("Search book to delete: ");
 
         String value = sc.nextLine();
 
-        List<Book> books = library.searchBook(field, value);
+        List<Book> books = library.searchBook(value);
 
         if (books.isEmpty()) {
 
@@ -188,42 +189,16 @@ public class Main {
 
             library.deleteBook(selected);
 
-            System.out.println("Deleted");
+            System.out.println("Book deleted successfully.");
+        } else {
+            System.out.println("Deletion cancelled.");
         }
 
     }
 
     static void handleUpdate(Scanner sc, LibraryManager library) {
 
-        String field = askField(sc);
-
-        System.out.println("\nFind the book you want to update");
-
-        System.out.print("Search book to update: ");
-
-        String value = sc.nextLine();
-
-        List<Book> books = library.searchBook(field, value);
-
-        if (books.isEmpty()) {
-
-            System.out.println("No matching books found");
-
-            return;
-        }
-
-        books.forEach(System.out::println);
-
-        int id = readInt(sc, "Select Book ID:");
-
-        Book b = books.stream().filter(x -> x.getBookId() == id).findFirst().orElse(null);
-
-        if (b == null) {
-
-            System.out.println("Invalid ID selected.");
-
-            return;
-        }
+        System.out.println("\nWhat do you want to update?:");
 
         System.out.println("1.BookName");
 
@@ -235,7 +210,7 @@ public class Main {
 
         System.out.println("5.All");
 
-        UpdateOption option = UpdateOption.fromInt(readInt(sc, "Choose option. Please select number between 1 to 5:"));
+        UpdateOption option = UpdateOption.fromInt(readInt(sc, "Choose option:"));
 
         if (option == null) {
 
@@ -243,6 +218,30 @@ public class Main {
 
             return;
         }
+
+        System.out.print("\nEnter book information to search: ");
+        String value = sc.nextLine();
+
+        List<Book> books = library.searchBook(value);
+
+        if (books.isEmpty()) {
+            System.out.println("No matching books found");
+            return;
+        }
+
+        books.forEach(System.out::println);
+
+        int id = readInt(sc, "Select Book ID:");
+
+        Book b = books.stream().filter(x -> x.getBookId() == id).findFirst().orElse(null);
+
+        if (b == null) {
+            System.out.println("Invalid ID selected.");
+            return;
+        }
+
+        System.out.println("\nSelected Book:");
+        System.out.println(b);
 
         String name = b.getBookName();
         String author = b.getAuthorName();
@@ -253,49 +252,36 @@ public class Main {
 
             case BOOK_NAME:
 
-                System.out.print("New Name:");
-
-                name = (sc.nextLine());
+                name = readNonBlank(sc, "New Name: ");
 
                 break;
 
             case AUTHOR:
 
-                System.out.print("New Author:");
-
-                author = (sc.nextLine());
+                author = readNonBlank(sc, "New Author: ");
 
                 break;
 
             case CATEGORY:
 
-                System.out.print("New Category:");
-
-                category = (sc.nextLine());
+                category = readNonBlank(sc, "New Category: ");
 
                 break;
 
             case YEAR:
 
-                year = (readInt(sc, "New Year:"));
+                year = (readYear(sc, "New Year:"));
 
                 break;
 
             case ALL:
 
-                System.out.print("Name:");
+                name = readNonBlank(sc, "Name: ");
+                author = readNonBlank(sc, "Author: ");
+                category = readNonBlank(sc, "Category: ");
+                year = readYear(sc, "Year: ");
 
-                name = (sc.nextLine());
-
-                System.out.print("Author:");
-
-                author = (sc.nextLine());
-
-                System.out.print("Category:");
-
-                category = (sc.nextLine());
-
-                year = (readInt(sc, "Year:"));
+                break;
         }
         Book updatedBook = new Book(
                 b.getBookId(),
@@ -310,34 +296,6 @@ public class Main {
         System.out.println("Updated");
     }
 
-    static String askField(Scanner sc) {
-
-        System.out.println("1.ID");
-        System.out.println("2.Name");
-        System.out.println("3.Author");
-        System.out.println("4.Category");
-        System.out.println("5.Year");
-
-        int c = readInt(sc, "Search option. Please enter number between 1 to 5:");
-
-        switch (c) {
-
-            case 1:
-                return "id";
-            case 2:
-                return "name";
-            case 3:
-                return "author";
-            case 4:
-                return "category";
-            case 5:
-                return "year";
-
-            default:
-                return "name";
-        }
-    }
-
     static int readInt(Scanner sc, String prompt) {
 
         while (true) {
@@ -348,7 +306,7 @@ public class Main {
 
                 return Integer.parseInt(sc.nextLine());
 
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
 
                 System.out.println("Invalid. Please enter a number.");
             }

@@ -22,7 +22,7 @@ public class CsvBookRepository implements BookRepository {
 
                 try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME))) {
 
-                    bw.write(String.join(",", headers));
+                    bw.write(String.join("|", headers));
 
                     bw.newLine();
                 }
@@ -46,7 +46,7 @@ public class CsvBookRepository implements BookRepository {
 
         } catch (IOException e) {
 
-            throw new RuntimeException("Error adding file", e);
+            throw new RuntimeException("Error adding book", e);
         }
     }
 
@@ -67,13 +67,13 @@ public class CsvBookRepository implements BookRepository {
     }
 
     @Override
-    public List<Book> searchBooks(String field, String value) {
+    public List<Book> searchBooks(String value) {
 
         List<Book> results = new ArrayList<>();
 
         for (Book b : getAllBooks()) {
 
-            if (b.matches(field, value)) {
+            if (b.matches(value)) {
 
                 results.add(b);
             }
@@ -114,7 +114,7 @@ public class CsvBookRepository implements BookRepository {
     private void saveAll(List<Book> books) {
         books.sort(Comparator.comparingInt(Book::getBookId));
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME))) {
-            bw.write(String.join(",", headers));
+            bw.write(String.join("|", headers));
             bw.newLine();
             for (Book b : books) {
                 bw.write(b.toCSV());

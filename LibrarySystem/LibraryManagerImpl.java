@@ -5,8 +5,8 @@ public class LibraryManagerImpl implements LibraryManager {
 
     private final BookRepository repository;
 
-    public LibraryManagerImpl() {
-        this.repository = new CsvBookRepository("books.csv");
+    public LibraryManagerImpl(BookRepository repository) {
+        this.repository = repository;
     }
 
     @Override
@@ -26,8 +26,8 @@ public class LibraryManagerImpl implements LibraryManager {
     }
 
     @Override
-    public List<Book> searchBook(String field, String value) {
-        return repository.searchBooks(field, value);
+    public List<Book> searchBook(String value) {
+        return repository.searchBooks(value);
     }
 
     @Override

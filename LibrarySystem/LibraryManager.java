@@ -9,7 +9,7 @@ public interface LibraryManager {
 
     List<Book> viewBooks();
 
-    List<Book> searchBook(String field, String value);
+    List<Book> searchBook(String value);
 
     void updateBook(Book book);
 

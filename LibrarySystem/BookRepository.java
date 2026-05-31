@@ -7,7 +7,7 @@ public interface BookRepository {
 
     List<Book> getAllBooks();
 
-    List<Book> searchBooks(String field, String value);
+    List<Book> searchBooks(String value);
 
     void updateBook(Book book);
 

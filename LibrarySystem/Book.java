@@ -70,31 +70,13 @@ public class Book {
         );
     }
 
-    public boolean matches(String field, String value) {
-
-        value = value.trim();
-
-        switch (field.toLowerCase()) {
-
-            case "id":
-                return String.valueOf(bookId)
-                        .equalsIgnoreCase(value);
-
-            case "name":
-                return bookName.toLowerCase().contains(value.toLowerCase());
-            case "author":
-                return authorName.toLowerCase().contains(value.toLowerCase());
-
-            case "category":
-                return category.toLowerCase().contains(value.toLowerCase());
-
-            case "year":
-                return String.valueOf(publicationYear)
-                        .equalsIgnoreCase(value);
-
-            default:
-                return false;
-        }
+    public boolean matches(String value) {
+        value = value.trim().toLowerCase();
+        return String.valueOf(bookId).equals(value)
+                || bookName.toLowerCase().contains(value)
+                || authorName.toLowerCase().contains(value)
+                || category.toLowerCase().contains(value)
+                || String.valueOf(publicationYear).equals(value);
     }
 
     @Override
