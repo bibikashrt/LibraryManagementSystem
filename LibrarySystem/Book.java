@@ -1,11 +1,11 @@
 
 public class Book {
 
-    private int bookId;
-    private String bookName;
-    private String authorName;
-    private String category;
-    private int publicationYear;
+    private final int bookId;
+    private final String bookName;
+    private final String authorName;
+    private final String category;
+    private final int publicationYear;
 
     public Book(int bookId, String bookName, String authorName, String category, int publicationYear) {
         this.bookId = bookId;
@@ -33,41 +33,6 @@ public class Book {
 
     public int getPublicationYear() {
         return publicationYear;
-    }
-
-    public void setBookId(int bookId) {
-        this.bookId = bookId;
-    }
-
-    public void setBookName(String bookName) {
-        this.bookName = bookName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setPublicationYear(int publicationYear) {
-        this.publicationYear = publicationYear;
-    }
-
-    public String toCSV() {
-        return bookId + "|" + bookName + "|" + authorName + "|" + category + "|" + publicationYear;
-    }
-
-    public static Book fromCSV(String line) {
-        String[] parts = line.split("\\|");
-        return new Book(
-                Integer.parseInt(parts[0].trim()),
-                parts[1].trim(),
-                parts[2].trim(),
-                parts[3].trim(),
-                Integer.parseInt(parts[4].trim())
-        );
     }
 
     public boolean matches(String value) {

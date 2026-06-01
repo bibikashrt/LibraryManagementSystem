@@ -1,4 +1,5 @@
 
+import java.time.Year;
 import java.util.*;
 
 public class LibraryConsoleApp {
@@ -60,7 +61,6 @@ public class LibraryConsoleApp {
             }
 
         } while (choice != MenuOption.EXIT);
-        sc.close();
 
     }
 
@@ -102,7 +102,7 @@ public class LibraryConsoleApp {
                         year
                 ));
 
-        System.out.println("Book added successfully");
+        System.out.println("Book added successfully.");
 
     }
 
@@ -294,7 +294,7 @@ public class LibraryConsoleApp {
 
         library.updateBook(updatedBook);
 
-        System.out.println("Updated");
+        System.out.println("Book updated successfully.");
     }
 
     private int readInt(String prompt) {
@@ -309,7 +309,7 @@ public class LibraryConsoleApp {
 
             } catch (NumberFormatException e) {
 
-                System.out.println("Invalid. Please enter a number.");
+                System.out.println("Invalid input. Please enter a number.");
             }
         }
     }
@@ -333,16 +333,18 @@ public class LibraryConsoleApp {
 
     private int readYear(String prompt) {
 
+        int currentYear = Year.now().getValue();
+
         while (true) {
 
             int year = readInt(prompt);
 
-            if (year >= 1000 && year <= 2100) {
+            if (year >= 1000 && year <= currentYear + 1) {
 
                 return year;
             }
 
-            System.out.println("Please enter a valid year between 1000 and 2100.");
+            System.out.println("Please enter a valid year between 1000 and " + (currentYear + 1));
         }
     }
 }

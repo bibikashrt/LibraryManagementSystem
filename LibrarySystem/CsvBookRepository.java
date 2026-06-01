@@ -1,8 +1,12 @@
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class CsvBookRepository implements BookRepository {
+
+    private static final String DELIMITER = "|";
 
     private final String FILE_NAME;
     private final List<String> headers = Arrays.asList("BookID", "BookName", "Author", "Category", "Year");
@@ -22,7 +26,7 @@ public class CsvBookRepository implements BookRepository {
 
                 try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME))) {
 
-                    bw.write(String.join("|", headers));
+                    bw.write(String.join(DELIMITER, headers));
 
                     bw.newLine();
                 }
@@ -31,7 +35,7 @@ public class CsvBookRepository implements BookRepository {
 
         } catch (IOException e) {
 
-            throw new RuntimeException("Error creating file", e);
+            throw new RuntimeException("Error creating file" + FILE_NAME, e);
         }
     }
 
@@ -40,13 +44,13 @@ public class CsvBookRepository implements BookRepository {
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
 
-            bw.write(book.toCSV());
+            bw.write(toCSV(book));
 
             bw.newLine();
 
         } catch (IOException e) {
 
-            throw new RuntimeException("Error adding book", e);
+            throw new RuntimeException("Unable to add book to file: " + FILE_NAME, e);
         }
     }
 
@@ -57,7 +61,12 @@ public class CsvBookRepository implements BookRepository {
             br.readLine();
             String line;
             while ((line = br.readLine()) != null && !line.trim().isEmpty()) {
-                books.add(Book.fromCSV(line));
+
+                try {
+                    books.add(fromCsv(line));
+                } catch (Exception e) {
+                    System.err.println("Warning: Skipping corrupt line in CSV: " + line);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException("Error reading books", e);
@@ -113,15 +122,54 @@ public class CsvBookRepository implements BookRepository {
 
     private void saveAll(List<Book> books) {
         books.sort(Comparator.comparingInt(Book::getBookId));
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME))) {
-            bw.write(String.join("|", headers));
+
+        String tempFileName = FILE_NAME + ".tmp";
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(tempFileName))) {
+            bw.write(String.join(DELIMITER, headers));
             bw.newLine();
             for (Book b : books) {
-                bw.write(b.toCSV());
+                bw.write(toCSV(b));
                 bw.newLine();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error saving books", e);
+            throw new RuntimeException("Error writing temporary file", e);
         }
+
+        File tempFile = new File(tempFileName);
+        File originalFile = new File(FILE_NAME);
+
+        try {
+            Files.move(tempFile.toPath(), originalFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Error replacing books file after save", e);
+        }
+    }
+
+    private String toCSV(Book book) {
+        return book.getBookId()
+                + DELIMITER
+                + book.getBookName()
+                + DELIMITER
+                + book.getAuthorName()
+                + DELIMITER
+                + book.getCategory()
+                + DELIMITER
+                + book.getPublicationYear();
+
+    }
+
+    private Book fromCsv(String line) {
+
+        String[] parts = line.split("\\|");
+
+        return new Book(
+                Integer.parseInt(parts[0].trim()),
+                parts[1].trim(),
+                parts[2].trim(),
+                parts[3].trim(),
+                Integer.parseInt(parts[4].trim())
+        );
     }
 }
