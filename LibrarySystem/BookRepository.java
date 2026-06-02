@@ -12,4 +12,6 @@ public interface BookRepository {
     void updateBook(Book book);
 
     void deleteBook(Book book);
+
+    boolean existsById(int bookId);
 }

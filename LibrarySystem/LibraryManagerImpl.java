@@ -11,8 +11,7 @@ public class LibraryManagerImpl implements LibraryManager {
 
     @Override
     public boolean isDuplicateBookId(int id) {
-        return repository.getAllBooks().stream()
-                .anyMatch(b -> b.getBookId() == id);
+        return repository.existsById(id);
     }
 
     @Override

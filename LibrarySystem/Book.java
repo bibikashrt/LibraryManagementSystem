@@ -1,5 +1,17 @@
 
+import java.util.Comparator;
+
 public class Book {
+
+    public static final int MAX_NAME_LENGTH = 200;
+    public static final int MAX_AUTHOR_LENGTH = 100;
+    public static final int MAX_CATEGORY_LENGTH = 100;
+
+    public static final Comparator<Book> BY_NAME
+            = Comparator.comparing(b -> b.bookName.toLowerCase());
+
+    public static final Comparator<Book> BY_YEAR
+            = Comparator.comparingInt(b -> b.publicationYear);
 
     private final int bookId;
     private final String bookName;
@@ -8,11 +20,16 @@ public class Book {
     private final int publicationYear;
 
     public Book(int bookId, String bookName, String authorName, String category, int publicationYear) {
+        if (bookId <= 0) {
+            throw new IllegalArgumentException("Book ID must be positive.");
+        }
+
         this.bookId = bookId;
-        this.bookName = bookName;
-        this.authorName = authorName;
-        this.category = category;
+        this.bookName = requireLength(bookName, MAX_NAME_LENGTH, "Book name");
+        this.authorName = requireLength(authorName, MAX_AUTHOR_LENGTH, "Author name");
+        this.category = requireLength(category, MAX_CATEGORY_LENGTH, "Category");
         this.publicationYear = publicationYear;
+
     }
 
     public int getBookId() {
@@ -57,5 +74,16 @@ public class Book {
                 + category
                 + " | Year: "
                 + publicationYear;
+    }
+
+    private static String requireLength(String value, int max, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+        }
+        if (value.length() > max) {
+            throw new IllegalArgumentException(
+                    fieldName + " exceeds maximum length of " + max + " characters.");
+        }
+        return value.trim();
     }
 }

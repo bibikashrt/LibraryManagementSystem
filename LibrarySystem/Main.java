@@ -7,7 +7,7 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
-        BookRepository repository = new CsvBookRepository("books.csv");
+        BookRepository repository = new DatabaseBookRepository();
 
         LibraryManager library = new LibraryManagerImpl(repository);
 

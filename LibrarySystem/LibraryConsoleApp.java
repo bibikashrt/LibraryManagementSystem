@@ -4,6 +4,9 @@ import java.util.*;
 
 public class LibraryConsoleApp {
 
+    private static final int MIN_YEAR = 1000;
+    private static final int MAX_YEAR_OFFSET = 1;
+
     private final Scanner sc;
     private final LibraryManager library;
 
@@ -14,54 +17,59 @@ public class LibraryConsoleApp {
 
     public void run() {
         MenuOption choice;
+
         do {
-            System.out.println("\n========Library System========");
-
-            System.out.println("\n1.Add Book");
-            System.out.println("2.View Book");
-            System.out.println("3.Update Book");
-            System.out.println("4.Delete Book");
-            System.out.println("5.Search Book");
-            System.out.println("6.Exit");
-
-            choice = MenuOption.fromInt(readInt("Enter the choice:"));
+            printMenu();
+            choice = MenuOption.fromInt(readInt("Enter the choice: "));
 
             if (choice == null) {
-
                 System.out.println("Invalid choice. Please enter a number between 1 and 6.");
-
                 continue;
             }
 
-            switch (choice) {
+            try {
+                switch (choice) {
+                    case ADD_BOOK:
+                        handleAddBook();
+                        break;
 
-                case ADD_BOOK:
-                    handleAddBook();
-                    break;
+                    case VIEW_BOOKS:
+                        handleViewBooks();
+                        break;
 
-                case VIEW_BOOKS:
-                    handleViewBooks();
-                    break;
+                    case UPDATE_BOOK:
+                        handleUpdate();
+                        break;
 
-                case SEARCH_BOOK:
-                    handleSearch();
-                    break;
+                    case DELETE_BOOK:
+                        handleDelete();
+                        break;
 
-                case UPDATE_BOOK:
-                    handleUpdate();
-                    break;
+                    case SEARCH_BOOK:
+                        handleSearch();
+                        break;
 
-                case DELETE_BOOK:
-                    handleDelete();
-                    break;
-
-                case EXIT:
-                    System.out.println("Goodbye! Thank you for using the Library System.");
-                    break;
+                    case EXIT:
+                        System.out.println("Goodbye! Thank you for using the Library System.");
+                        break;
+                }
+            } catch (LibraryException e) {
+                System.out.println("Database error: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input: " + e.getMessage());
             }
 
         } while (choice != MenuOption.EXIT);
+    }
 
+    private void printMenu() {
+        System.out.println("\n========Library System========");
+        System.out.println("\n1. Add Book");
+        System.out.println("2. View Books");
+        System.out.println("3. Update Book");
+        System.out.println("4. Delete Book");
+        System.out.println("5. Search Book");
+        System.out.println("6. Exit");
     }
 
     private void handleAddBook() {
@@ -85,11 +93,11 @@ public class LibraryConsoleApp {
                 break;
             }
         }
-        String name = readNonBlank("Name:");
+        String name = readNonBlank("Name:", Book.MAX_NAME_LENGTH);
 
-        String author = readNonBlank("Author:");
+        String author = readNonBlank("Author:", Book.MAX_AUTHOR_LENGTH);
 
-        String category = readNonBlank("Category:");
+        String category = readNonBlank("Category:", Book.MAX_CATEGORY_LENGTH);
 
         int year = readYear("Year:");
 
@@ -124,7 +132,11 @@ public class LibraryConsoleApp {
 
         System.out.print("Enter book information: ");
 
-        String value = sc.nextLine();
+        String value = sc.nextLine().trim();
+        if (value.isEmpty()) {
+            System.out.println("Please enter a search term.");
+            return;
+        }
 
         List<Book> books = library.searchBook(value);
 
@@ -159,14 +171,11 @@ public class LibraryConsoleApp {
 
         int id = readInt("Select Book ID:");
 
-        Book selected = books.stream()
-                .filter(b -> b.getBookId() == id)
-                .findFirst()
-                .orElse(null);
+        Book selected = findById(books, id);
 
         if (selected == null) {
 
-            System.out.println("Invalid ID selected.");
+            System.out.println("That ID was not in the search results. Please select from the listed books.");
 
             return;
         }
@@ -234,10 +243,10 @@ public class LibraryConsoleApp {
 
         int id = readInt("Select Book ID:");
 
-        Book b = books.stream().filter(x -> x.getBookId() == id).findFirst().orElse(null);
+        Book b = findById(books, id);
 
         if (b == null) {
-            System.out.println("Invalid ID selected.");
+            System.out.println("That ID was not in the search results. Please select from the listed books.");
             return;
         }
 
@@ -253,19 +262,19 @@ public class LibraryConsoleApp {
 
             case BOOK_NAME:
 
-                name = readNonBlank("New Name: ");
+                name = readNonBlank("New Name: ", Book.MAX_NAME_LENGTH);
 
                 break;
 
             case AUTHOR:
 
-                author = readNonBlank("New Author: ");
+                author = readNonBlank("New Author: ", Book.MAX_AUTHOR_LENGTH);
 
                 break;
 
             case CATEGORY:
 
-                category = readNonBlank("New Category: ");
+                category = readNonBlank("New Category: ", Book.MAX_CATEGORY_LENGTH);
 
                 break;
 
@@ -275,24 +284,17 @@ public class LibraryConsoleApp {
 
                 break;
 
-            case ALL:
+            case ALL: {
 
-                name = readNonBlank("Name: ");
-                author = readNonBlank("Author: ");
-                category = readNonBlank("Category: ");
+                name = readNonBlank("Name: ", Book.MAX_NAME_LENGTH);
+                author = readNonBlank("Author: ", Book.MAX_AUTHOR_LENGTH);
+                category = readNonBlank("Category: ", Book.MAX_CATEGORY_LENGTH);
                 year = readYear("Year: ");
 
                 break;
+            }
         }
-        Book updatedBook = new Book(
-                b.getBookId(),
-                name,
-                author,
-                category,
-                year
-        );
-
-        library.updateBook(updatedBook);
+        library.updateBook(new Book(b.getBookId(), name, author, category, year));
 
         System.out.println("Book updated successfully.");
     }
@@ -314,37 +316,41 @@ public class LibraryConsoleApp {
         }
     }
 
-    private String readNonBlank(String prompt) {
-
+    private String readNonBlank(String prompt, int maxLength) {
         while (true) {
-
             System.out.print(prompt);
-
             String input = sc.nextLine().trim();
-
-            if (!input.isEmpty()) {
-
+            if (input.isEmpty()) {
+                System.out.println("This field cannot be empty. Please try again.");
+            } else if (input.length() > maxLength) {
+                System.out.println("Input is too long (max " + maxLength + " characters). Please try again.");
+            } else {
                 return input;
             }
-
-            System.out.println("This field cannot be empty. Please try again.");
         }
     }
 
     private int readYear(String prompt) {
 
-        int currentYear = Year.now().getValue();
+        int maxYear = Year.now().getValue() + MAX_YEAR_OFFSET;
 
         while (true) {
 
             int year = readInt(prompt);
 
-            if (year >= 1000 && year <= currentYear + 1) {
+            if (year >= MIN_YEAR && year <= maxYear) {
 
                 return year;
             }
 
-            System.out.println("Please enter a valid year between 1000 and " + (currentYear + 1));
+            System.out.println("Please enter a valid year between  " + MIN_YEAR + " and " + maxYear + ".");
         }
+    }
+
+    private Book findById(List<Book> books, int id) {
+        return books.stream()
+                .filter(b -> b.getBookId() == id)
+                .findFirst()
+                .orElse(null);
     }
 }
