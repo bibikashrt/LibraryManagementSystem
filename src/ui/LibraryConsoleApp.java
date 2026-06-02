@@ -1,6 +1,15 @@
+package ui;
 
+import enums.ConfirmationOption;
+import enums.MenuOption;
+import enums.StudentUpdateOption;
+import enums.UpdateOption;
+import exception.LibraryException;
 import java.time.Year;
 import java.util.*;
+import model.Book;
+import model.Student;
+import service.LibraryManager;
 
 public class LibraryConsoleApp {
 
@@ -49,6 +58,26 @@ public class LibraryConsoleApp {
                         handleSearch();
                         break;
 
+                    case ADD_STUDENT:
+                        handleAddStudent();
+                        break;
+
+                    case VIEW_STUDENTS:
+                        handleViewStudents();
+                        break;
+
+                    case SEARCH_STUDENT:
+                        handleSearchStudent();
+                        break;
+
+                    case UPDATE_STUDENT:
+                        handleUpdateStudent();
+                        break;
+
+                    case DELETE_STUDENT:
+                        handleDeleteStudent();
+                        break;
+
                     case EXIT:
                         System.out.println("Goodbye! Thank you for using the Library System.");
                         break;
@@ -69,7 +98,13 @@ public class LibraryConsoleApp {
         System.out.println("3. Update Book");
         System.out.println("4. Delete Book");
         System.out.println("5. Search Book");
-        System.out.println("6. Exit");
+
+        System.out.println("6. Add Student");
+        System.out.println("7. View Students");
+        System.out.println("8. Search Student");
+        System.out.println("9. Update Student");
+        System.out.println("10. Delete Student");
+        System.out.println("11. Exit");
     }
 
     private void handleAddBook() {
@@ -297,6 +332,229 @@ public class LibraryConsoleApp {
         library.updateBook(new Book(b.getBookId(), name, author, category, year));
 
         System.out.println("Book updated successfully.");
+    }
+
+    private void handleAddStudent() {
+
+        int id;
+
+        while (true) {
+
+            id = readInt("Student ID: ");
+
+            if (id <= 0) {
+
+                System.out.println("Student ID must be positive.");
+
+            } else if (library.isDuplicateStudentId(id)) {
+
+                System.out.println("Duplicate ID. Please enter a different ID.");
+
+            } else {
+
+                break;
+            }
+        }
+
+        String name = readNonBlank("Student Name: ", Student.MAX_NAME_LENGTH);
+
+        String email = readNonBlank("Email: ", Student.MAX_EMAIL_LENGTH);
+
+        library.addStudent(
+                new Student(
+                        id,
+                        name,
+                        email));
+
+        System.out.println("Student added successfully.");
+    }
+
+    private void handleViewStudents() {
+
+        List<Student> students = library.viewStudents();
+
+        if (students.isEmpty()) {
+
+            System.out.println("No students available.");
+
+            return;
+        }
+
+        students.forEach(System.out::println);
+    }
+
+    private void handleSearchStudent() {
+
+        System.out.println("\nSearch Student");
+
+        System.out.print("Enter student information: ");
+
+        String value = sc.nextLine().trim();
+
+        if (value.isEmpty()) {
+
+            System.out.println("Please enter a search term.");
+
+            return;
+        }
+
+        List<Student> students = library.searchStudent(value);
+
+        if (students.isEmpty()) {
+
+            System.out.println("No matching students found.");
+
+            return;
+        }
+
+        students.forEach(System.out::println);
+    }
+
+    private void handleUpdateStudent() {
+
+        System.out.println("\nWhat do you want to update?");
+
+        System.out.println("1. Name");
+        System.out.println("2. Email");
+        System.out.println("3. All");
+
+        StudentUpdateOption option = StudentUpdateOption.fromInt(readInt("Choose option: "));
+
+        if (option == null) {
+
+            System.out.println("Invalid choice. Update cancelled.");
+
+            return;
+        }
+
+        System.out.print("\nEnter student information to search: ");
+
+        String value = sc.nextLine();
+
+        List<Student> students = library.searchStudent(value);
+
+        if (students.isEmpty()) {
+
+            System.out.println("No matching students found.");
+
+            return;
+        }
+
+        students.forEach(System.out::println);
+
+        int id = readInt("Select Student ID: ");
+
+        Student selected = students.stream()
+                .filter(s
+                        -> s.getStudentId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (selected == null) {
+
+            System.out.println("That ID was not in the search results.");
+
+            return;
+        }
+
+        System.out.println("\nSelected Student:");
+
+        System.out.println(selected);
+
+        String name = selected.getStudentName();
+
+        String email = selected.getEmail();
+
+        switch (option) {
+
+            case NAME:
+
+                name = readNonBlank("New Name: ", Student.MAX_NAME_LENGTH);
+
+                break;
+
+            case EMAIL:
+
+                email = readNonBlank("New Email: ", Student.MAX_EMAIL_LENGTH);
+
+                break;
+
+            case ALL:
+
+                name = readNonBlank("Name: ", Student.MAX_NAME_LENGTH);
+
+                email = readNonBlank("Email: ", Student.MAX_EMAIL_LENGTH);
+
+                break;
+        }
+
+        library.updateStudent(
+                new Student(
+                        selected.getStudentId(),
+                        name,
+                        email));
+
+        System.out.println("Student updated successfully.");
+    }
+
+    private void handleDeleteStudent() {
+
+        System.out.print("\nSearch student to delete: ");
+
+        String value = sc.nextLine();
+
+        List<Student> students = library.searchStudent(value);
+
+        if (students.isEmpty()) {
+
+            System.out.println("No matching students found.");
+
+            return;
+        }
+
+        students.forEach(System.out::println);
+
+        int id = readInt("Select Student ID: ");
+
+        Student selected = students.stream()
+                .filter(s
+                        -> s.getStudentId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (selected == null) {
+
+            System.out.println("That ID was not in the search results.");
+
+            return;
+        }
+
+        System.out.println(selected);
+
+        System.out.println("\nAre you sure you want to delete this student?");
+
+        System.out.println("1.Yes");
+        System.out.println("2.No");
+
+        ConfirmationOption confirm = ConfirmationOption.fromInt(readInt("Confirm: "));
+
+        if (confirm == null) {
+
+            System.out.println("Invalid choice. Deletion cancelled.");
+
+            return;
+        }
+
+        if (confirm == ConfirmationOption.YES) {
+
+            library.deleteStudent(selected);
+
+            System.out.println("Student deleted successfully.");
+
+        } else {
+
+            System.out.println("Deletion cancelled.");
+        }
     }
 
     private int readInt(String prompt) {

@@ -1,0 +1,6 @@
+Jun 02, 2026 11:10:10 AM DatabaseBookRepository addBook
+INFO: Book added successfully. ID=4, Name=OOP
+Jun 02, 2026 3:39:57 PM repository.DatabaseStudentRepository addStudent
+INFO: Student added successfully. ID=1
+Jun 02, 2026 3:43:50 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: jj
