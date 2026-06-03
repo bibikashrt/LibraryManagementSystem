@@ -102,7 +102,7 @@ public class LibraryConsoleApp {
                         break;
                 }
             } catch (LibraryException e) {
-                System.out.println("Database error: " + e.getMessage());
+                System.out.println("Error: " + e.getMessage());
             } catch (IllegalArgumentException e) {
                 System.out.println("Invalid input: " + e.getMessage());
             }
@@ -184,7 +184,18 @@ public class LibraryConsoleApp {
             return;
         }
 
-        books.forEach(System.out::println);
+        for (Book book : books) {
+
+            String status = library.isBookAvailable(
+                    book.getBookId())
+                    ? "Available"
+                    : "Borrowed";
+
+            System.out.println(
+                    book
+                    + " | Status: "
+                    + status);
+        }
     }
 
     private void handleSearch() {
@@ -207,13 +218,23 @@ public class LibraryConsoleApp {
 
             return;
         }
+        for (Book book : books) {
 
-        books.forEach(System.out::println);
+            String status
+                    = library.isBookAvailable(
+                            book.getBookId())
+                    ? "Available"
+                    : "Borrowed";
+
+            System.out.println(
+                    book
+                    + " | Status: "
+                    + status);
+        }
+
     }
 
     private void handleDelete() {
-
-        System.out.println("\nFind the book you want to delete");
 
         System.out.print("Search book to delete: ");
 
@@ -243,28 +264,12 @@ public class LibraryConsoleApp {
 
         System.out.println(selected);
 
-        System.out.println("\nAre you sure you want to delete this book?");
-
-        System.out.println("1.Yes");
-
-        System.out.println("2.No");
-
-        ConfirmationOption confirm = ConfirmationOption.fromInt(readInt("Confirm:"));
-
-        if (confirm == null) {
-            System.out.println("Invalid choice. Deletion cancelled.");
-            return;
-        }
-
-        if (confirm == ConfirmationOption.YES) {
-
+        if (confirmAction("Delete this book?")) {
             library.deleteBook(selected);
-
             System.out.println("Book deleted successfully.");
         } else {
             System.out.println("Deletion cancelled.");
         }
-
     }
 
     private void handleUpdate() {
@@ -384,15 +389,16 @@ public class LibraryConsoleApp {
 
         String name = readNonBlank("Student Name: ", Student.MAX_NAME_LENGTH);
 
-        String email = readNonBlank("Email: ", Student.MAX_EMAIL_LENGTH);
+        String faculty = readNonBlank("Faculty: ", Student.MAX_FACULTY_LENGTH);
 
-        library.addStudent(
-                new Student(
-                        id,
-                        name,
-                        email));
+        String batch = readNonBlank("Batch: ", Student.MAX_BATCH_LENGTH);
 
-        System.out.println("Student added successfully.");
+        try {
+            library.addStudent(new Student(id, name, faculty, batch));
+            System.out.println("Student added successfully.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid input: " + e.getMessage());
+        }
     }
 
     private void handleViewStudents() {
@@ -441,8 +447,9 @@ public class LibraryConsoleApp {
         System.out.println("\nWhat do you want to update?");
 
         System.out.println("1. Name");
-        System.out.println("2. Email");
-        System.out.println("3. All");
+        System.out.println("2. FACULTY");
+        System.out.println("3. BATCH");
+        System.out.println("4. All");
 
         StudentUpdateOption option = StudentUpdateOption.fromInt(readInt("Choose option: "));
 
@@ -489,7 +496,9 @@ public class LibraryConsoleApp {
 
         String name = selected.getStudentName();
 
-        String email = selected.getEmail();
+        String faculty = selected.getFaculty();
+
+        String batch = selected.getBatch();
 
         switch (option) {
 
@@ -499,9 +508,15 @@ public class LibraryConsoleApp {
 
                 break;
 
-            case EMAIL:
+            case FACULTY:
 
-                email = readNonBlank("New Email: ", Student.MAX_EMAIL_LENGTH);
+                faculty = readNonBlank("New Email: ", Student.MAX_FACULTY_LENGTH);
+
+                break;
+
+            case BATCH:
+
+                batch = readNonBlank("New BATCH: ", Student.MAX_BATCH_LENGTH);
 
                 break;
 
@@ -509,7 +524,9 @@ public class LibraryConsoleApp {
 
                 name = readNonBlank("Name: ", Student.MAX_NAME_LENGTH);
 
-                email = readNonBlank("Email: ", Student.MAX_EMAIL_LENGTH);
+                faculty = readNonBlank("FACULTY: ", Student.MAX_FACULTY_LENGTH);
+
+                batch = readNonBlank("BATCH: ", Student.MAX_BATCH_LENGTH);
 
                 break;
         }
@@ -518,7 +535,8 @@ public class LibraryConsoleApp {
                 new Student(
                         selected.getStudentId(),
                         name,
-                        email));
+                        faculty,
+                        batch));
 
         System.out.println("Student updated successfully.");
     }
@@ -527,17 +545,12 @@ public class LibraryConsoleApp {
 
         System.out.print("\nSearch student to delete: ");
 
-        String value = sc.nextLine();
-
-        List<Student> students = library.searchStudent(value);
+        List<Student> students = library.searchStudent(sc.nextLine());
 
         if (students.isEmpty()) {
-
             System.out.println("No matching students found.");
-
             return;
         }
-
         students.forEach(System.out::println);
 
         int id = readInt("Select Student ID: ");
@@ -557,143 +570,155 @@ public class LibraryConsoleApp {
 
         System.out.println(selected);
 
-        System.out.println("\nAre you sure you want to delete this student?");
-
-        System.out.println("1.Yes");
-        System.out.println("2.No");
-
-        ConfirmationOption confirm = ConfirmationOption.fromInt(readInt("Confirm: "));
-
-        if (confirm == null) {
-
-            System.out.println("Invalid choice. Deletion cancelled.");
-
-            return;
-        }
-
-        if (confirm == ConfirmationOption.YES) {
-
+        if (confirmAction("Delete this student?")) {
             library.deleteStudent(selected);
-
             System.out.println("Student deleted successfully.");
-
         } else {
-
             System.out.println("Deletion cancelled.");
         }
     }
 
     private void handleBorrowBook() {
 
-        int studentId
-                = readInt("Student ID: ");
+        int studentId = readInt("Student ID: ");
 
-        if (!library.isDuplicateStudentId(
-                studentId)) {
+        if (!library.isDuplicateStudentId(studentId)) {
 
-            System.out.println(
-                    "Student not found.");
+            System.out.println("Student not found.");
 
             return;
         }
 
-        int bookId
-                = readInt("Book ID: ");
+        // System.out.println("\nStudent Found:");
+        // List<Student> students = library.searchStudent(String.valueOf(studentId));
+        // students.forEach(System.out::println);
+        System.out.print("\nSearch Book: ");
+        String searchValue = sc.nextLine();
 
-        if (!library.isDuplicateBookId(
-                bookId)) {
+        List<Book> books = library.searchBook(searchValue);
 
-            System.out.println(
-                    "Book not found.");
+        if (books.isEmpty()) {
+
+            System.out.println("No matching books found.");
 
             return;
         }
 
-        LocalDate issueDate
-                = LocalDate.now();
+        System.out.println("\nMatching Books:");
 
-        LocalDate dueDate
-                = issueDate.plusDays(14);
+        for (Book book : books) {
 
-        BorrowRecord record
-                = new BorrowRecord(
-                        0,
-                        studentId,
-                        bookId,
-                        issueDate,
-                        dueDate,
-                        null,
-                        BorrowStatus.BORROWED
-                                .name());
+            String status = library.isBookAvailable(
+                    book.getBookId())
+                    ? "Available"
+                    : "Borrowed";
+
+            System.out.println(
+                    book
+                    + " | Status: "
+                    + status);
+        }
+
+        int bookId = readInt("\nSelect Book ID: ");
+
+        Book selectedBook
+                = books.stream()
+                        .filter(book
+                                -> book.getBookId()
+                        == bookId)
+                        .findFirst()
+                        .orElse(null);
+
+        if (selectedBook == null) {
+
+            System.out.println("Book ID not found in search results.");
+
+            return;
+        }
+
+        if (!library.isBookAvailable(bookId)) {
+
+            System.out.println("Book is currently borrowed.");
+
+            return;
+        }
+
+        LocalDate issueDate = LocalDate.now();
+
+        LocalDate dueDate = issueDate.plusDays(14);
+
+        BorrowRecord record = new BorrowRecord(
+                0,
+                studentId,
+                bookId,
+                issueDate,
+                dueDate,
+                null,
+                BorrowStatus.BORROWED
+        );
 
         library.borrowBook(record);
 
-        System.out.println(
-                "\nBook borrowed successfully.");
+        System.out.println("\nBook borrowed successfully.");
 
-        System.out.println(
-                "Issue Date : "
-                + issueDate);
+        System.out.println("Issue Date : " + issueDate);
 
-        System.out.println(
-                "Due Date   : "
-                + dueDate);
+        System.out.println("Due Date   : " + dueDate);
     }
 
     private void handleReturnBook() {
 
-        int borrowId
-                = readInt("Borrow ID: ");
+        int borrowId = readInt("Borrow ID: ");
 
-        if (!library.isBorrowRecordExists(
-                borrowId)) {
+        if (!library.isBorrowRecordExists(borrowId)) {
 
-            System.out.println(
-                    "Borrow record not found.");
+            System.out.println("Borrow record not found.");
 
             return;
         }
 
-        library.returnBook(
-                borrowId,
-                LocalDate.now());
+        library.returnBook(borrowId, LocalDate.now());
 
-        System.out.println(
-                "Book returned successfully.");
+        System.out.println("Book returned successfully.");
     }
 
     private void handleViewBorrowRecords() {
 
-        List<BorrowRecord> records
-                = library.viewBorrowRecords();
+        List<BorrowRecord> records = library.viewBorrowRecords();
 
         if (records.isEmpty()) {
 
-            System.out.println(
-                    "No borrow records available.");
+            System.out.println("No borrow records available.");
 
             return;
         }
 
-        records.forEach(
-                System.out::println);
+        records.forEach(System.out::println);
     }
 
     private void handleViewOverdueBooks() {
 
-        List<BorrowRecord> records
-                = library.viewOverdueBorrowRecords();
+        List<BorrowRecord> records = library.viewOverdueBorrowRecords();
 
         if (records.isEmpty()) {
 
-            System.out.println(
-                    "No overdue books.");
+            System.out.println("No overdue books.");
 
             return;
         }
 
-        records.forEach(
-                System.out::println);
+        records.forEach(System.out::println);
+    }
+
+    private boolean confirmAction(String prompt) {
+        System.out.println("\n" + prompt);
+        System.out.println("1. Yes  2. No");
+        ConfirmationOption confirm = ConfirmationOption.fromInt(readInt("Confirm: "));
+        if (confirm == null) {
+            System.out.println("Invalid choice. Action cancelled.");
+            return false;
+        }
+        return confirm == ConfirmationOption.YES;
     }
 
     private int readInt(String prompt) {

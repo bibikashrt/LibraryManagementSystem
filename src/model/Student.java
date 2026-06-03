@@ -3,16 +3,19 @@ package model;
 public class Student {
 
     public static final int MAX_NAME_LENGTH = 100;
-    public static final int MAX_EMAIL_LENGTH = 100;
+    public static final int MAX_FACULTY_LENGTH = 100;
+    public static final int MAX_BATCH_LENGTH = 20;
 
     private final int studentId;
     private final String studentName;
-    private final String email;
+    private final String faculty;
+    private final String batch;
 
     public Student(
             int studentId,
             String studentName,
-            String email) {
+            String faculty,
+            String batch) {
 
         if (studentId <= 0) {
             throw new IllegalArgumentException(
@@ -26,10 +29,15 @@ public class Student {
                 MAX_NAME_LENGTH,
                 "Student name");
 
-        this.email = requireLength(
-                email,
-                MAX_EMAIL_LENGTH,
-                "Email");
+        this.faculty = requireLength(
+                faculty,
+                MAX_FACULTY_LENGTH,
+                "Faculty");
+
+        this.batch = requireLength(
+                batch,
+                MAX_BATCH_LENGTH,
+                "BATCH");
     }
 
     public int getStudentId() {
@@ -40,8 +48,12 @@ public class Student {
         return studentName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public String getBatch() {
+        return batch;
     }
 
     @Override
@@ -51,8 +63,10 @@ public class Student {
                 + studentId
                 + " | Name: "
                 + studentName
-                + " | Email: "
-                + email;
+                + " | Faculty: "
+                + faculty
+                + " | Batch: "
+                + batch;
     }
 
     private static String requireLength(

@@ -16,7 +16,7 @@ public class DatabaseStudentRepository implements StudentRepository {
     @Override
     public void addStudent(Student student) {
 
-        String sql = "INSERT INTO students VALUES (?, ?, ?)";
+        String sql = "INSERT INTO students VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -24,7 +24,9 @@ public class DatabaseStudentRepository implements StudentRepository {
 
             ps.setString(2, student.getStudentName());
 
-            ps.setString(3, student.getEmail());
+            ps.setString(3, student.getFaculty());
+
+            ps.setString(4, student.getBatch());
 
             ps.executeUpdate();
 
@@ -71,7 +73,8 @@ public class DatabaseStudentRepository implements StudentRepository {
             FROM students
             WHERE CAST(student_id AS VARCHAR) = ?
                OR LOWER(student_name) LIKE ?
-               OR LOWER(email) LIKE ?
+               OR LOWER(faculty) LIKE ?
+               OR LOWER(batch) LIKE ?
             ORDER BY student_id
             """;
 
@@ -82,6 +85,7 @@ public class DatabaseStudentRepository implements StudentRepository {
             ps.setString(1, search);
             ps.setString(2, "%" + search + "%");
             ps.setString(3, "%" + search + "%");
+            ps.setString(4, "%" + search + "%");
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -105,7 +109,8 @@ public class DatabaseStudentRepository implements StudentRepository {
         String sql = """
             UPDATE students
             SET student_name = ?,
-                email = ?
+                faculty = ?,
+                batch = ?
             WHERE student_id = ?
             """;
 
@@ -113,9 +118,11 @@ public class DatabaseStudentRepository implements StudentRepository {
 
             ps.setString(1, student.getStudentName());
 
-            ps.setString(2, student.getEmail());
+            ps.setString(2, student.getFaculty());
 
-            ps.setInt(3, student.getStudentId());
+            ps.setString(3, student.getBatch());
+
+            ps.setInt(4, student.getStudentId());
 
             ps.executeUpdate();
 
@@ -167,6 +174,8 @@ public class DatabaseStudentRepository implements StudentRepository {
         return new Student(
                 rs.getInt("student_id"),
                 rs.getString("student_name"),
-                rs.getString("email"));
+                rs.getString("faculty"),
+                rs.getString("batch")
+        );
     }
 }

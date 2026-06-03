@@ -14,8 +14,7 @@ public final class LoggerConfig {
 
         try {
 
-            FileHandler fileHandler
-                    = new FileHandler("library.log", true);
+            FileHandler fileHandler = new FileHandler("library.log", true);
 
             fileHandler.setFormatter(
                     new SimpleFormatter());
@@ -24,9 +23,7 @@ public final class LoggerConfig {
 
         } catch (IOException e) {
 
-            System.err.println(
-                    "Failed to initialize logger: "
-                    + e.getMessage());
+            System.err.println("Failed to initialize logger: " + e.getMessage());
         }
     }
 

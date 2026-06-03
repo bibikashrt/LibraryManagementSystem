@@ -1,16 +1,32 @@
-Jun 02, 2026 11:10:10 AM DatabaseBookRepository addBook
-INFO: Book added successfully. ID=4, Name=OOP
-Jun 02, 2026 3:39:57 PM repository.DatabaseStudentRepository addStudent
-INFO: Student added successfully. ID=1
-Jun 02, 2026 3:43:50 PM repository.DatabaseBookRepository searchBooks
-INFO: Searching books with keyword: jj
-Jun 03, 2026 9:38:17 AM repository.DatabaseBorrowRepository borrowBook
-INFO: Book borrowed successfully.
-Jun 03, 2026 9:43:02 AM repository.DatabaseBorrowRepository returnBook
+Jun 03, 2026 11:17:58 AM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: Java
+Jun 03, 2026 11:18:26 AM repository.DatabaseBorrowRepository returnBook
 INFO: Book returned successfully.
-Jun 03, 2026 9:44:07 AM repository.DatabaseBorrowRepository borrowBook
+Jun 03, 2026 11:19:58 AM repository.DatabaseBorrowRepository returnBook
+INFO: Book returned successfully.
+Jun 03, 2026 11:20:03 AM repository.DatabaseBorrowRepository returnBook
+INFO: Book returned successfully.
+Jun 03, 2026 12:09:34 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: Java
+Jun 03, 2026 12:09:41 PM repository.DatabaseBorrowRepository borrowBook
 INFO: Book borrowed successfully.
-Jun 03, 2026 9:44:16 AM repository.DatabaseBorrowRepository borrowBook
+Jun 03, 2026 12:09:50 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: Java
+Jun 03, 2026 2:15:21 PM repository.DatabaseStudentRepository addStudent
+INFO: Student added successfully. ID=3
+Jun 03, 2026 2:27:41 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: Java
+Jun 03, 2026 2:31:01 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: Java
+Jun 03, 2026 2:37:30 PM repository.DatabaseBookRepository updateBook
+INFO: Book updated successfully. ID=1
+Jun 03, 2026 2:51:31 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: OOP
+Jun 03, 2026 2:51:39 PM repository.DatabaseBorrowRepository borrowBook
 INFO: Book borrowed successfully.
-Jun 03, 2026 9:47:16 AM repository.DatabaseStudentRepository addStudent
-INFO: Student added successfully. ID=2
+Jun 03, 2026 3:33:36 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: 6
+Jun 03, 2026 3:36:26 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: 5
+Jun 03, 2026 3:36:54 PM repository.DatabaseBookRepository searchBooks
+INFO: Searching books with keyword: Java

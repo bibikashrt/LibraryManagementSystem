@@ -41,4 +41,6 @@ public interface LibraryManager {
     List<BorrowRecord> viewOverdueBorrowRecords();
 
     boolean isBorrowRecordExists(int borrowId);
+
+    boolean isBookAvailable(int bookId);
 }

@@ -2,6 +2,7 @@ package repository;
 
 import config.DatabaseConnection;
 import config.LoggerConfig;
+import enums.BorrowStatus;
 import exception.LibraryException;
 import java.sql.Connection;
 import java.sql.Date;
@@ -55,7 +56,7 @@ public class DatabaseBorrowRepository
                 statement.setDate(5, Date.valueOf(record.getReturnDate()));
             }
 
-            statement.setString(6, record.getStatus());
+            statement.setString(6, record.getStatus().name());
 
             statement.executeUpdate();
 
@@ -276,8 +277,7 @@ public class DatabaseBorrowRepository
                 returnDate == null
                         ? null
                         : returnDate.toLocalDate(),
-                rs.getString(
-                        "status")
+                BorrowStatus.valueOf(rs.getString("status"))
         );
     }
 }

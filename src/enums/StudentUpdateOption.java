@@ -3,8 +3,9 @@ package enums;
 public enum StudentUpdateOption {
 
     NAME(1),
-    EMAIL(2),
-    ALL(3);
+    FACULTY(2),
+    BATCH(3),
+    ALL(4);
 
     private final int value;
 

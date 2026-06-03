@@ -117,4 +117,10 @@ public class LibraryManagerImpl implements LibraryManager {
 
         return borrowRepository.existsByBorrowId(borrowId);
     }
+
+    @Override
+    public boolean isBookAvailable(int bookId) {
+
+        return !borrowRepository.isBookBorrowed(bookId);
+    }
 }

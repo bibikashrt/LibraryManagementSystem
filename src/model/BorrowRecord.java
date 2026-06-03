@@ -1,5 +1,6 @@
 package model;
 
+import enums.BorrowStatus;
 import java.time.LocalDate;
 
 public class BorrowRecord {
@@ -16,7 +17,7 @@ public class BorrowRecord {
 
     private final LocalDate returnDate;
 
-    private final String status;
+    private final BorrowStatus status;
 
     public BorrowRecord(
             int borrowId,
@@ -25,36 +26,30 @@ public class BorrowRecord {
             LocalDate issueDate,
             LocalDate dueDate,
             LocalDate returnDate,
-            String status) {
+            BorrowStatus status) {
 
         if (borrowId < 0) {
-            throw new IllegalArgumentException(
-                    "Borrow ID cannot be negative.");
+            throw new IllegalArgumentException("Borrow ID cannot be negative.");
         }
 
         if (studentId <= 0) {
-            throw new IllegalArgumentException(
-                    "Student ID must be positive.");
+            throw new IllegalArgumentException("Student ID must be positive.");
         }
 
         if (bookId <= 0) {
-            throw new IllegalArgumentException(
-                    "Book ID must be positive.");
+            throw new IllegalArgumentException("Book ID must be positive.");
         }
 
         if (issueDate == null) {
-            throw new IllegalArgumentException(
-                    "Issue date cannot be null.");
+            throw new IllegalArgumentException("Issue date cannot be null.");
         }
 
         if (dueDate == null) {
-            throw new IllegalArgumentException(
-                    "Due date cannot be null.");
+            throw new IllegalArgumentException("Due date cannot be null.");
         }
 
-        if (status == null || status.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Status cannot be blank.");
+        if (status == null) {
+            throw new IllegalArgumentException("Status cannot be blank.");
         }
 
         this.borrowId = borrowId;
@@ -63,7 +58,7 @@ public class BorrowRecord {
         this.issueDate = issueDate;
         this.dueDate = dueDate;
         this.returnDate = returnDate;
-        this.status = status.trim();
+        this.status = status;
     }
 
     public int getBorrowId() {
@@ -90,7 +85,7 @@ public class BorrowRecord {
         return returnDate;
     }
 
-    public String getStatus() {
+    public BorrowStatus getStatus() {
         return status;
     }
 
