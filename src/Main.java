@@ -1,7 +1,9 @@
 
 import java.util.*;
 import repository.BookRepository;
+import repository.BorrowRepository;
 import repository.DatabaseBookRepository;
+import repository.DatabaseBorrowRepository;
 import repository.DatabaseStudentRepository;
 import repository.StudentRepository;
 import service.LibraryManager;
@@ -18,7 +20,9 @@ public class Main {
 
         StudentRepository studentRepository = new DatabaseStudentRepository();
 
-        LibraryManager library = new LibraryManagerImpl(bookrepository, studentRepository);
+        BorrowRepository borrowRepository = new DatabaseBorrowRepository();
+
+        LibraryManager library = new LibraryManagerImpl(bookrepository, studentRepository, borrowRepository);
 
         LibraryConsoleApp app = new LibraryConsoleApp(sc, library);
 

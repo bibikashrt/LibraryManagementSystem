@@ -4,3 +4,13 @@ Jun 02, 2026 3:39:57 PM repository.DatabaseStudentRepository addStudent
 INFO: Student added successfully. ID=1
 Jun 02, 2026 3:43:50 PM repository.DatabaseBookRepository searchBooks
 INFO: Searching books with keyword: jj
+Jun 03, 2026 9:38:17 AM repository.DatabaseBorrowRepository borrowBook
+INFO: Book borrowed successfully.
+Jun 03, 2026 9:43:02 AM repository.DatabaseBorrowRepository returnBook
+INFO: Book returned successfully.
+Jun 03, 2026 9:44:07 AM repository.DatabaseBorrowRepository borrowBook
+INFO: Book borrowed successfully.
+Jun 03, 2026 9:44:16 AM repository.DatabaseBorrowRepository borrowBook
+INFO: Book borrowed successfully.
+Jun 03, 2026 9:47:16 AM repository.DatabaseStudentRepository addStudent
+INFO: Student added successfully. ID=2

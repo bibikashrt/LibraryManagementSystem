@@ -1,13 +1,16 @@
 package ui;
 
+import enums.BorrowStatus;
 import enums.ConfirmationOption;
 import enums.MenuOption;
 import enums.StudentUpdateOption;
 import enums.UpdateOption;
 import exception.LibraryException;
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.*;
 import model.Book;
+import model.BorrowRecord;
 import model.Student;
 import service.LibraryManager;
 
@@ -78,6 +81,22 @@ public class LibraryConsoleApp {
                         handleDeleteStudent();
                         break;
 
+                    case BORROW_BOOK:
+                        handleBorrowBook();
+                        break;
+
+                    case RETURN_BOOK:
+                        handleReturnBook();
+                        break;
+
+                    case VIEW_BORROW_RECORDS:
+                        handleViewBorrowRecords();
+                        break;
+
+                    case VIEW_OVERDUE_BOOKS:
+                        handleViewOverdueBooks();
+                        break;
+
                     case EXIT:
                         System.out.println("Goodbye! Thank you for using the Library System.");
                         break;
@@ -104,7 +123,14 @@ public class LibraryConsoleApp {
         System.out.println("8. Search Student");
         System.out.println("9. Update Student");
         System.out.println("10. Delete Student");
-        System.out.println("11. Exit");
+
+        System.out.println("11. Borrow Book");
+        System.out.println("12. Return Book");
+        System.out.println("13. View Borrow Records");
+        System.out.println("14. View Overdue Books");
+
+        System.out.println("15. Exit");
+
     }
 
     private void handleAddBook() {
@@ -555,6 +581,119 @@ public class LibraryConsoleApp {
 
             System.out.println("Deletion cancelled.");
         }
+    }
+
+    private void handleBorrowBook() {
+
+        int studentId
+                = readInt("Student ID: ");
+
+        if (!library.isDuplicateStudentId(
+                studentId)) {
+
+            System.out.println(
+                    "Student not found.");
+
+            return;
+        }
+
+        int bookId
+                = readInt("Book ID: ");
+
+        if (!library.isDuplicateBookId(
+                bookId)) {
+
+            System.out.println(
+                    "Book not found.");
+
+            return;
+        }
+
+        LocalDate issueDate
+                = LocalDate.now();
+
+        LocalDate dueDate
+                = issueDate.plusDays(14);
+
+        BorrowRecord record
+                = new BorrowRecord(
+                        0,
+                        studentId,
+                        bookId,
+                        issueDate,
+                        dueDate,
+                        null,
+                        BorrowStatus.BORROWED
+                                .name());
+
+        library.borrowBook(record);
+
+        System.out.println(
+                "\nBook borrowed successfully.");
+
+        System.out.println(
+                "Issue Date : "
+                + issueDate);
+
+        System.out.println(
+                "Due Date   : "
+                + dueDate);
+    }
+
+    private void handleReturnBook() {
+
+        int borrowId
+                = readInt("Borrow ID: ");
+
+        if (!library.isBorrowRecordExists(
+                borrowId)) {
+
+            System.out.println(
+                    "Borrow record not found.");
+
+            return;
+        }
+
+        library.returnBook(
+                borrowId,
+                LocalDate.now());
+
+        System.out.println(
+                "Book returned successfully.");
+    }
+
+    private void handleViewBorrowRecords() {
+
+        List<BorrowRecord> records
+                = library.viewBorrowRecords();
+
+        if (records.isEmpty()) {
+
+            System.out.println(
+                    "No borrow records available.");
+
+            return;
+        }
+
+        records.forEach(
+                System.out::println);
+    }
+
+    private void handleViewOverdueBooks() {
+
+        List<BorrowRecord> records
+                = library.viewOverdueBorrowRecords();
+
+        if (records.isEmpty()) {
+
+            System.out.println(
+                    "No overdue books.");
+
+            return;
+        }
+
+        records.forEach(
+                System.out::println);
     }
 
     private int readInt(String prompt) {

@@ -1,9 +1,10 @@
 package service;
 
-import model.Book;
-import model.Student;
-
+import java.time.LocalDate;
 import java.util.List;
+import model.Book;
+import model.BorrowRecord;
+import model.Student;
 
 public interface LibraryManager {
 
@@ -30,4 +31,14 @@ public interface LibraryManager {
     void updateStudent(Student student);
 
     void deleteStudent(Student student);
+
+    void borrowBook(BorrowRecord record);
+
+    void returnBook(int borrowId, LocalDate returnDate);
+
+    List<BorrowRecord> viewBorrowRecords();
+
+    List<BorrowRecord> viewOverdueBorrowRecords();
+
+    boolean isBorrowRecordExists(int borrowId);
 }

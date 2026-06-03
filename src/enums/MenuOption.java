@@ -11,7 +11,11 @@ public enum MenuOption {
     SEARCH_STUDENT(8),
     UPDATE_STUDENT(9),
     DELETE_STUDENT(10),
-    EXIT(11);
+    BORROW_BOOK(11),
+    RETURN_BOOK(12),
+    VIEW_BORROW_RECORDS(13),
+    VIEW_OVERDUE_BOOKS(14),
+    EXIT(15);
 
     private final int value;
 

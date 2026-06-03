@@ -1,9 +1,12 @@
 package service;
 
+import java.time.LocalDate;
 import java.util.List;
 import model.Book;
+import model.BorrowRecord;
 import model.Student;
 import repository.BookRepository;
+import repository.BorrowRepository;
 import repository.StudentRepository;
 
 public class LibraryManagerImpl implements LibraryManager {
@@ -11,10 +14,12 @@ public class LibraryManagerImpl implements LibraryManager {
     private final BookRepository bookrepository;
 
     private final StudentRepository studentRepository;
+    private final BorrowRepository borrowRepository;
 
-    public LibraryManagerImpl(BookRepository bookrepository, StudentRepository studentRepository) {
+    public LibraryManagerImpl(BookRepository bookrepository, StudentRepository studentRepository, BorrowRepository borrowRepository) {
         this.bookrepository = bookrepository;
         this.studentRepository = studentRepository;
+        this.borrowRepository = borrowRepository;
     }
 
     @Override
@@ -81,5 +86,35 @@ public class LibraryManagerImpl implements LibraryManager {
     public void deleteStudent(Student student) {
 
         studentRepository.deleteStudent(student);
+    }
+
+    @Override
+    public void borrowBook(BorrowRecord record) {
+
+        borrowRepository.borrowBook(record);
+    }
+
+    @Override
+    public void returnBook(int borrowId, LocalDate returnDate) {
+
+        borrowRepository.returnBook(borrowId, returnDate);
+    }
+
+    @Override
+    public List<BorrowRecord> viewBorrowRecords() {
+
+        return borrowRepository.getAllBorrowRecords();
+    }
+
+    @Override
+    public List<BorrowRecord> viewOverdueBorrowRecords() {
+
+        return borrowRepository.getOverdueBorrowRecords();
+    }
+
+    @Override
+    public boolean isBorrowRecordExists(int borrowId) {
+
+        return borrowRepository.existsByBorrowId(borrowId);
     }
 }
