@@ -1,12 +1,17 @@
 package repository;
 
-import config.DatabaseConnection;
-import config.LoggerConfig;
-import exception.LibraryException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import config.DatabaseConnection;
+import config.LoggerConfig;
+import exception.LibraryException;
 import model.Student;
 
 public class DatabaseStudentRepository implements StudentRepository {
@@ -43,10 +48,9 @@ public class DatabaseStudentRepository implements StudentRepository {
     @Override
     public List<Student> getAllStudents() {
 
-        List<Student> students
-                = new ArrayList<>();
+        List<Student> students = new ArrayList<>();
 
-        String sql = "SELECT * FROM students ORDER BY student_id";
+        String sql = "SELECT * FROM students ORDER BY id";
 
         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -71,11 +75,11 @@ public class DatabaseStudentRepository implements StudentRepository {
         String sql = """
             SELECT *
             FROM students
-            WHERE CAST(student_id AS VARCHAR) = ?
-               OR LOWER(student_name) LIKE ?
+            WHERE CAST(id AS VARCHAR) = ?
+               OR LOWER(name) LIKE ?
                OR LOWER(faculty) LIKE ?
                OR LOWER(batch) LIKE ?
-            ORDER BY student_id
+            ORDER BY id
             """;
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -108,10 +112,10 @@ public class DatabaseStudentRepository implements StudentRepository {
 
         String sql = """
             UPDATE students
-            SET student_name = ?,
+            SET name = ?,
                 faculty = ?,
                 batch = ?
-            WHERE student_id = ?
+            WHERE id = ?
             """;
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -135,7 +139,7 @@ public class DatabaseStudentRepository implements StudentRepository {
     @Override
     public void deleteStudent(Student student) {
 
-        String sql = "DELETE FROM students WHERE student_id = ?";
+        String sql = "DELETE FROM students WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -152,7 +156,7 @@ public class DatabaseStudentRepository implements StudentRepository {
     @Override
     public boolean existsById(int studentId) {
 
-        String sql = "SELECT COUNT(*) FROM students WHERE student_id = ?";
+        String sql = "SELECT COUNT(*) FROM students WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -172,8 +176,8 @@ public class DatabaseStudentRepository implements StudentRepository {
     private Student mapRow(ResultSet rs) throws SQLException {
 
         return new Student(
-                rs.getInt("student_id"),
-                rs.getString("student_name"),
+                rs.getInt("id"),
+                rs.getString("name"),
                 rs.getString("faculty"),
                 rs.getString("batch")
         );

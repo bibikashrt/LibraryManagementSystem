@@ -18,26 +18,16 @@ public class Student {
             String batch) {
 
         if (studentId <= 0) {
-            throw new IllegalArgumentException(
-                    "Student ID must be positive.");
+            throw new IllegalArgumentException("Student ID must be positive.");
         }
 
         this.studentId = studentId;
 
-        this.studentName = requireLength(
-                studentName,
-                MAX_NAME_LENGTH,
-                "Student name");
+        this.studentName = requireLength(studentName, MAX_NAME_LENGTH, "Student name");
 
-        this.faculty = requireLength(
-                faculty,
-                MAX_FACULTY_LENGTH,
-                "Faculty");
+        this.faculty = requireLength(faculty, MAX_FACULTY_LENGTH, "Faculty");
 
-        this.batch = requireLength(
-                batch,
-                MAX_BATCH_LENGTH,
-                "BATCH");
+        this.batch = requireLength(batch, MAX_BATCH_LENGTH, "BATCH");
     }
 
     public int getStudentId() {
@@ -75,8 +65,7 @@ public class Student {
             String fieldName) {
 
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(
-                    fieldName + " cannot be blank.");
+            throw new IllegalArgumentException(fieldName + " cannot be blank.");
         }
 
         if (value.length() > max) {

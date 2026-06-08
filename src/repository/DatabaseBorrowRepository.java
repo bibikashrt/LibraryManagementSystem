@@ -1,9 +1,5 @@
 package repository;
 
-import config.DatabaseConnection;
-import config.LoggerConfig;
-import enums.BorrowStatus;
-import exception.LibraryException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -14,6 +10,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import config.DatabaseConnection;
+import config.LoggerConfig;
+import enums.BorrowStatus;
+import exception.LibraryException;
 import model.BorrowRecord;
 
 public class DatabaseBorrowRepository
@@ -214,8 +215,7 @@ public class DatabaseBorrowRepository
 
     private List<BorrowRecord> getByStatus(String status) {
 
-        List<BorrowRecord> records
-                = new ArrayList<>();
+        List<BorrowRecord> records = new ArrayList<>();
 
         String sql
                 = """
@@ -230,50 +230,33 @@ public class DatabaseBorrowRepository
                 = DatabaseConnection.getConnection(); PreparedStatement statement
                 = connection.prepareStatement(sql)) {
 
-            statement.setString(
-                    1,
-                    status);
+            statement.setString(1, status);
 
-            ResultSet rs
-                    = statement.executeQuery();
+            ResultSet rs = statement.executeQuery();
 
             while (rs.next()) {
 
-                records.add(
-                        mapRow(rs));
+                records.add(mapRow(rs));
             }
 
             return records;
 
         } catch (SQLException e) {
 
-            throw new LibraryException(
-                    "Failed to fetch records.",
-                    e);
+            throw new LibraryException("Failed to fetch records.", e);
         }
     }
 
-    private BorrowRecord mapRow(
-            ResultSet rs)
-            throws SQLException {
+    private BorrowRecord mapRow(ResultSet rs) throws SQLException {
 
-        Date returnDate
-                = rs.getDate(
-                        "return_date");
+        Date returnDate = rs.getDate("return_date");
 
         return new BorrowRecord(
-                rs.getInt(
-                        "borrow_id"),
-                rs.getInt(
-                        "student_id"),
-                rs.getInt(
-                        "book_id"),
-                rs.getDate(
-                        "issue_date")
-                        .toLocalDate(),
-                rs.getDate(
-                        "due_date")
-                        .toLocalDate(),
+                rs.getInt("borrow_id"),
+                rs.getInt("student_id"),
+                rs.getInt("book_id"),
+                rs.getDate("issue_date").toLocalDate(),
+                rs.getDate("due_date").toLocalDate(),
                 returnDate == null
                         ? null
                         : returnDate.toLocalDate(),
