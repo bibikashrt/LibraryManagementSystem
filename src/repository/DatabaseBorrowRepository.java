@@ -65,6 +65,13 @@ public class DatabaseBorrowRepository
 
         } catch (SQLException e) {
 
+            LOGGER.severe("Failed to borrow book. Student ID="
+                    + record.getStudentId()
+                    + ", Book ID="
+                    + record.getBookId()
+                    + ". Error: "
+                    + e.getMessage());
+
             throw new LibraryException("Failed to borrow book.", e);
         }
     }
@@ -90,12 +97,19 @@ public class DatabaseBorrowRepository
 
             if (rows == 0) {
 
+                LOGGER.warning("Return attempt failed. Borrow ID not found: " + borrowId);
+
                 throw new LibraryException("Borrow record not found.");
             }
 
             LOGGER.info("Book returned successfully.");
 
         } catch (SQLException e) {
+
+            LOGGER.severe("Failed to return book. Borrow ID="
+                    + borrowId
+                    + ". Error: "
+                    + e.getMessage());
 
             throw new LibraryException("Failed to return book.", e);
         }
@@ -124,6 +138,11 @@ public class DatabaseBorrowRepository
 
         } catch (SQLException e) {
 
+            LOGGER.severe("Failed to check borrow status for Book ID="
+                    + bookId
+                    + ". Error: "
+                    + e.getMessage());
+
             throw new LibraryException("Failed to check borrow status.", e);
         }
     }
@@ -147,6 +166,11 @@ public class DatabaseBorrowRepository
             return rs.next();
 
         } catch (SQLException e) {
+
+            LOGGER.severe("Failed to check borrow ID: "
+                    + borrowId
+                    + ". Error: "
+                    + e.getMessage());
 
             throw new LibraryException("Failed to check borrow ID.", e);
         }
@@ -174,6 +198,8 @@ public class DatabaseBorrowRepository
             return records;
 
         } catch (SQLException e) {
+
+            LOGGER.severe("Failed to fetch borrow records. Error: " + e.getMessage());
 
             throw new LibraryException("Failed to fetch borrow records.", e);
         }

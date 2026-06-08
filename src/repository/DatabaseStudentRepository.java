@@ -61,6 +61,8 @@ public class DatabaseStudentRepository implements StudentRepository {
 
         } catch (SQLException e) {
 
+            LOGGER.severe("Failed to retrieve students. Error: " + e.getMessage());
+
             throw new LibraryException("Failed to retrieve students.", e);
         }
 
@@ -101,6 +103,11 @@ public class DatabaseStudentRepository implements StudentRepository {
 
         } catch (SQLException e) {
 
+            LOGGER.severe("Failed to search students. Search value: "
+                    + value
+                    + ". Error: "
+                    + e.getMessage());
+
             throw new LibraryException("Failed to search students.", e);
         }
 
@@ -128,9 +135,23 @@ public class DatabaseStudentRepository implements StudentRepository {
 
             ps.setInt(4, student.getStudentId());
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+
+            if (rows == 0) {
+
+                LOGGER.warning("Update failed. Student not found. ID=" + student.getStudentId());
+
+            } else {
+
+                LOGGER.info("Student updated successfully. ID=" + student.getStudentId());
+            }
 
         } catch (SQLException e) {
+
+            LOGGER.severe("Failed to update student. ID="
+                    + student.getStudentId()
+                    + ". Error: "
+                    + e.getMessage());
 
             throw new LibraryException("Failed to update student.", e);
         }
@@ -145,9 +166,23 @@ public class DatabaseStudentRepository implements StudentRepository {
 
             ps.setInt(1, student.getStudentId());
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+
+            if (rows == 0) {
+
+                LOGGER.warning("Delete failed. Student not found. ID=" + student.getStudentId());
+
+            } else {
+
+                LOGGER.info("Student deleted successfully. ID=" + student.getStudentId());
+            }
 
         } catch (SQLException e) {
+
+            LOGGER.severe("Failed to delete student. ID="
+                    + student.getStudentId()
+                    + ". Error: "
+                    + e.getMessage());
 
             throw new LibraryException("Failed to delete student.", e);
         }
@@ -168,6 +203,11 @@ public class DatabaseStudentRepository implements StudentRepository {
             }
 
         } catch (SQLException e) {
+
+            LOGGER.severe("Failed to check student existence. ID="
+                    + studentId
+                    + ". Error: "
+                    + e.getMessage());
 
             throw new LibraryException("Failed to check student existence.", e);
         }
