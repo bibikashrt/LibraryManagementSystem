@@ -3,3 +3,4 @@ library.log
 *.class
 .idea/
 .vscode/
+*.jar

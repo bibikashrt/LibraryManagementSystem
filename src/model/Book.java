@@ -2,6 +2,9 @@ package model;
 
 import java.util.Comparator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Book {
 
     public static final int MAX_NAME_LENGTH = 200;
@@ -20,7 +23,14 @@ public class Book {
     private final String category;
     private final int publicationYear;
 
-    public Book(int bookId, String bookName, String authorName, String category, int publicationYear) {
+    @JsonCreator
+    public Book(
+            @JsonProperty("bookId") int bookId,
+            @JsonProperty("bookName") String bookName,
+            @JsonProperty("authorName") String authorName,
+            @JsonProperty("category") String category,
+            @JsonProperty("publicationYear") int publicationYear) {
+
         if (bookId <= 0) {
             throw new IllegalArgumentException("Book ID must be positive.");
         }
@@ -30,7 +40,6 @@ public class Book {
         this.authorName = requireLength(authorName, MAX_AUTHOR_LENGTH, "Author name");
         this.category = requireLength(category, MAX_CATEGORY_LENGTH, "Category");
         this.publicationYear = publicationYear;
-
     }
 
     public int getBookId() {

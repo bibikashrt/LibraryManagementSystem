@@ -1,27 +1,33 @@
 package config;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DatabaseConnection {
 
-    // private static final String URL
-    //         = System.getenv().getOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/library_db");
-    // private static final String USER
-    //         = System.getenv().getOrDefault("DB_USER", "postgres");
-    // private static final String PASSWORD
-    //         = System.getenv().getOrDefault("DB_PASSWORD", "");
-    // private DatabaseConnection() {
-    // }
-    private static final String URL
-            = "jdbc:postgresql://localhost:5432/library_db";
+    private static final Properties properties = new Properties();
 
-    private static final String USER = "postgres";
+    static {
+        try {
+            properties.load(new FileInputStream("config.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load config.properties", e);
+        }
+    }
 
-    private static final String PASSWORD = "root";
+    private DatabaseConnection() {
+    }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+
+        String url = properties.getProperty("db.url");
+        String user = properties.getProperty("db.user");
+        String password = properties.getProperty("db.password");
+
+        return DriverManager.getConnection(url, user, password);
     }
 }
