@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -21,7 +23,17 @@ public class DatabaseStudentRepository implements StudentRepository {
     @Override
     public void addStudent(Student student) {
 
-        String sql = "INSERT INTO students VALUES (?, ?, ?, ?)";
+        String sql = """
+    INSERT INTO students (
+        id,
+        name,
+        faculty,
+        batch,
+        created_by,
+        created_on
+    )
+    VALUES (?, ?, ?, ?, ?, ?)
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -32,6 +44,10 @@ public class DatabaseStudentRepository implements StudentRepository {
             ps.setString(3, student.getFaculty());
 
             ps.setString(4, student.getBatch());
+
+            ps.setString(5, "SYSTEM");
+
+            ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
 
             ps.executeUpdate();
 
@@ -50,7 +66,12 @@ public class DatabaseStudentRepository implements StudentRepository {
 
         List<Student> students = new ArrayList<>();
 
-        String sql = "SELECT * FROM students ORDER BY id";
+        String sql = """
+    SELECT *
+    FROM students
+    WHERE deleted_on IS NULL
+    ORDER BY id
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -75,14 +96,17 @@ public class DatabaseStudentRepository implements StudentRepository {
         List<Student> students = new ArrayList<>();
 
         String sql = """
-            SELECT *
-            FROM students
-            WHERE CAST(id AS VARCHAR) = ?
-               OR LOWER(name) LIKE ?
-               OR LOWER(faculty) LIKE ?
-               OR LOWER(batch) LIKE ?
-            ORDER BY id
-            """;
+    SELECT *
+    FROM students
+    WHERE deleted_on IS NULL
+      AND (
+            CAST(id AS VARCHAR) = ?
+         OR LOWER(name) LIKE ?
+         OR LOWER(faculty) LIKE ?
+         OR LOWER(batch) LIKE ?
+      )
+    ORDER BY id
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -121,7 +145,9 @@ public class DatabaseStudentRepository implements StudentRepository {
             UPDATE students
             SET name = ?,
                 faculty = ?,
-                batch = ?
+                batch = ?,
+                updated_by = ?,
+                updated_on = ?
             WHERE id = ?
             """;
 
@@ -133,7 +159,11 @@ public class DatabaseStudentRepository implements StudentRepository {
 
             ps.setString(3, student.getBatch());
 
-            ps.setInt(4, student.getStudentId());
+            ps.setString(4, "SYSTEM");
+
+            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+
+            ps.setInt(6, student.getStudentId());
 
             int rows = ps.executeUpdate();
 
@@ -160,11 +190,20 @@ public class DatabaseStudentRepository implements StudentRepository {
     @Override
     public void deleteStudent(Student student) {
 
-        String sql = "DELETE FROM students WHERE id = ?";
+        String sql = """
+    UPDATE students
+    SET deleted_by = ?,
+        deleted_on = ?
+    WHERE id = ?
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, student.getStudentId());
+            ps.setString(1, "SYSTEM");
+
+            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+
+            ps.setInt(3, student.getStudentId());
 
             int rows = ps.executeUpdate();
 
@@ -191,7 +230,12 @@ public class DatabaseStudentRepository implements StudentRepository {
     @Override
     public boolean existsById(int studentId) {
 
-        String sql = "SELECT COUNT(*) FROM students WHERE id = ?";
+        String sql = """
+    SELECT COUNT(*)
+    FROM students
+    WHERE id = ?
+      AND deleted_on IS NULL
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 

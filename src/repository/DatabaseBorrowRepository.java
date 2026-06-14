@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -25,18 +27,19 @@ public class DatabaseBorrowRepository
     @Override
     public void borrowBook(BorrowRecord record) {
 
-        String sql
-                = """
-                INSERT INTO borrow_records(
-                    student_id,
-                    book_id,
-                    issue_date,
-                    due_date,
-                    return_date,
-                    status
-                )
-                VALUES (?, ?, ?, ?, ?, ?)
-                """;
+        String sql = """
+    INSERT INTO borrow_records(
+        student_id,
+        book_id,
+        issue_date,
+        due_date,
+        return_date,
+        status,
+        created_by,
+        created_on
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """;
 
         try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -59,6 +62,10 @@ public class DatabaseBorrowRepository
 
             statement.setString(6, record.getStatus().name());
 
+            statement.setString(7, "SYSTEM");
+
+            statement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+
             statement.executeUpdate();
 
             LOGGER.info("Book borrowed successfully.");
@@ -79,19 +86,24 @@ public class DatabaseBorrowRepository
     @Override
     public void returnBook(int borrowId, LocalDate returnDate) {
 
-        String sql
-                = """
-                UPDATE borrow_records
-                SET return_date = ?,
-                    status = 'RETURNED'
-                WHERE borrow_id = ?
-                """;
+        String sql = """
+    UPDATE borrow_records
+    SET return_date = ?,
+        status = 'RETURNED',
+        updated_by = ?,
+        updated_on = ?
+    WHERE borrow_id = ?
+    """;
 
         try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setDate(1, Date.valueOf(returnDate));
 
-            statement.setInt(2, borrowId);
+            statement.setString(2, "SYSTEM");
+
+            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+
+            statement.setInt(4, borrowId);
 
             int rows = statement.executeUpdate();
 

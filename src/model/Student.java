@@ -1,5 +1,8 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Student {
 
     public static final int MAX_NAME_LENGTH = 100;
@@ -11,11 +14,12 @@ public class Student {
     private final String faculty;
     private final String batch;
 
+    @JsonCreator
     public Student(
-            int studentId,
-            String studentName,
-            String faculty,
-            String batch) {
+            @JsonProperty("studentId") int studentId,
+            @JsonProperty("studentName") String studentName,
+            @JsonProperty("faculty") String faculty,
+            @JsonProperty("batch") String batch) {
 
         if (studentId <= 0) {
             throw new IllegalArgumentException("Student ID must be positive.");

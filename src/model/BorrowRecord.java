@@ -1,7 +1,10 @@
 package model;
 
-import enums.BorrowStatus;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import enums.BorrowStatus;
 
 public class BorrowRecord {
 
@@ -20,13 +23,13 @@ public class BorrowRecord {
     private final BorrowStatus status;
 
     public BorrowRecord(
-            int borrowId,
-            int studentId,
-            int bookId,
-            LocalDate issueDate,
-            LocalDate dueDate,
-            LocalDate returnDate,
-            BorrowStatus status) {
+            @JsonProperty("borrowId") int borrowId,
+            @JsonProperty("studentId") int studentId,
+            @JsonProperty("bookId") int bookId,
+            @JsonProperty("issueDate") LocalDate issueDate,
+            @JsonProperty("dueDate") LocalDate dueDate,
+            @JsonProperty("returnDate") LocalDate returnDate,
+            @JsonProperty("status") BorrowStatus status) {
 
         if (borrowId < 0) {
             throw new IllegalArgumentException("Borrow ID cannot be negative.");

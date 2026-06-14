@@ -1,16 +1,19 @@
 package repository;
 
-import config.DatabaseConnection;
-import config.LoggerConfig;
-import exception.LibraryException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import config.DatabaseConnection;
+import config.LoggerConfig;
+import exception.LibraryException;
 import model.Book;
 
 public class DatabaseBookRepository implements BookRepository {
@@ -19,8 +22,18 @@ public class DatabaseBookRepository implements BookRepository {
 
     @Override
     public void addBook(Book book) {
-        String sql
-                = "INSERT INTO books VALUES (?, ?, ?, ?, ?)";
+        String sql = """
+    INSERT INTO books (
+        book_id,
+        book_name,
+        author_name,
+        category,
+        publication_year,
+        created_by,
+        created_on
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """;
 
         try (
                 Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -30,6 +43,8 @@ public class DatabaseBookRepository implements BookRepository {
             ps.setString(3, book.getAuthorName());
             ps.setString(4, book.getCategory());
             ps.setInt(5, book.getPublicationYear());
+            ps.setString(6, "SYSTEM");
+            ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
 
             ps.executeUpdate();
 
@@ -53,8 +68,12 @@ public class DatabaseBookRepository implements BookRepository {
 
         List<Book> books = new ArrayList<>();
 
-        String sql
-                = "SELECT * FROM books ORDER BY book_id";
+        String sql = """
+    SELECT *
+    FROM books
+    WHERE deleted_on IS NULL
+    ORDER BY book_id
+    """;
 
         try (
                 Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
@@ -82,15 +101,18 @@ public class DatabaseBookRepository implements BookRepository {
         List<Book> books = new ArrayList<>();
 
         String sql = """
-        SELECT *
-        FROM books
-        WHERE CAST(book_id AS VARCHAR) = ?
-           OR LOWER(book_name) LIKE ?
-           OR LOWER(author_name) LIKE ?
-           OR LOWER(category) LIKE ?
-           OR CAST(publication_year AS TEXT) = ?
-        ORDER BY book_id
-        """;
+    SELECT *
+    FROM books
+    WHERE deleted_on IS NULL
+      AND (
+            CAST(book_id AS VARCHAR) = ?
+         OR LOWER(book_name) LIKE ?
+         OR LOWER(author_name) LIKE ?
+         OR LOWER(category) LIKE ?
+         OR CAST(publication_year AS TEXT) = ?
+      )
+    ORDER BY book_id
+    """;
 
         try (
                 Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -124,11 +146,13 @@ public class DatabaseBookRepository implements BookRepository {
 
         String sql = """
             UPDATE books
-            SET book_name = ?,
-                author_name = ?,
-                category = ?,
-                publication_year = ?
-            WHERE book_id = ?
+SET book_name = ?,
+    author_name = ?,
+    category = ?,
+    publication_year = ?,
+    updated_by = ?,
+    updated_on = ?
+WHERE book_id = ?
             """;
 
         try (
@@ -138,7 +162,11 @@ public class DatabaseBookRepository implements BookRepository {
             ps.setString(2, book.getAuthorName());
             ps.setString(3, book.getCategory());
             ps.setInt(4, book.getPublicationYear());
-            ps.setInt(5, book.getBookId());
+            ps.setString(5, "SYSTEM");
+
+            ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+
+            ps.setInt(7, book.getBookId());
 
             ps.executeUpdate();
 
@@ -155,13 +183,21 @@ public class DatabaseBookRepository implements BookRepository {
     @Override
     public void deleteBook(Book book) {
 
-        String sql
-                = "DELETE FROM books WHERE book_id = ?";
+        String sql = """
+    UPDATE books
+    SET deleted_by = ?,
+        deleted_on = ?
+    WHERE book_id = ?
+    """;
 
         try (
                 Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, book.getBookId());
+            ps.setString(1, "SYSTEM");
+
+            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+
+            ps.setInt(3, book.getBookId());
 
             ps.executeUpdate();
 
@@ -177,7 +213,12 @@ public class DatabaseBookRepository implements BookRepository {
 
     @Override
     public boolean existsById(int bookId) {
-        String sql = "SELECT COUNT(*) FROM books WHERE book_id = ?";
+        String sql = """
+    SELECT COUNT(*)
+    FROM books
+    WHERE book_id = ?
+      AND deleted_on IS NULL
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
