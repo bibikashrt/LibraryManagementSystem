@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -43,8 +42,8 @@ public class DatabaseBookRepository implements BookRepository {
             ps.setString(3, book.getAuthorName());
             ps.setString(4, book.getCategory());
             ps.setInt(5, book.getPublicationYear());
-            ps.setString(6, "SYSTEM");
-            ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setString(6, book.getCreatedBy());
+            ps.setTimestamp(7, Timestamp.valueOf(book.getCreatedOn()));
 
             ps.executeUpdate();
 
@@ -162,9 +161,9 @@ WHERE book_id = ?
             ps.setString(2, book.getAuthorName());
             ps.setString(3, book.getCategory());
             ps.setInt(4, book.getPublicationYear());
-            ps.setString(5, "SYSTEM");
+            ps.setString(5, book.getUpdatedBy());
 
-            ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(6, Timestamp.valueOf(book.getUpdatedOn()));
 
             ps.setInt(7, book.getBookId());
 
@@ -193,9 +192,9 @@ WHERE book_id = ?
         try (
                 Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, "SYSTEM");
+            ps.setString(1, book.getDeletedBy());
 
-            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(2, Timestamp.valueOf(book.getDeletedOn()));
 
             ps.setInt(3, book.getBookId());
 
@@ -237,12 +236,52 @@ WHERE book_id = ?
     }
 
     private Book mapRow(ResultSet rs) throws SQLException {
-        return new Book(
+
+        Book book = new Book(
                 rs.getInt("book_id"),
                 rs.getString("book_name"),
                 rs.getString("author_name"),
                 rs.getString("category"),
                 rs.getInt("publication_year")
         );
+
+        book.setCreatedBy(
+                rs.getString("created_by"));
+
+        Timestamp createdOn
+                = rs.getTimestamp("created_on");
+
+        if (createdOn != null) {
+
+            book.setCreatedOn(
+                    createdOn.toLocalDateTime());
+        }
+
+        book.setUpdatedBy(
+                rs.getString("updated_by"));
+
+        Timestamp updatedOn
+                = rs.getTimestamp("updated_on");
+
+        if (updatedOn != null) {
+
+            book.setUpdatedOn(
+                    updatedOn.toLocalDateTime());
+        }
+
+        book.setDeletedBy(
+                rs.getString("deleted_by"));
+
+        Timestamp deletedOn
+                = rs.getTimestamp("deleted_on");
+
+        if (deletedOn != null) {
+
+            book.setDeletedOn(
+                    deletedOn.toLocalDateTime());
+        }
+
+        return book;
     }
+
 }

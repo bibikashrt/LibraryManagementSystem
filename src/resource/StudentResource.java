@@ -2,6 +2,7 @@ package resource;
 
 import java.util.List;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -13,39 +14,28 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.Student;
-import repository.BookRepository;
-import repository.BorrowRepository;
-import repository.DatabaseBookRepository;
-import repository.DatabaseBorrowRepository;
-import repository.DatabaseStudentRepository;
-import repository.StudentRepository;
 import service.LibraryManager;
-import service.LibraryManagerImpl;
 
 @Path("/students")
 public class StudentResource {
 
-    private final LibraryManager library;
+    @Inject
+    private LibraryManager library;
+//     public StudentResource() {
 
-    public StudentResource() {
-
-        BookRepository bookRepository
-                = new DatabaseBookRepository();
-
-        StudentRepository studentRepository
-                = new DatabaseStudentRepository();
-
-        BorrowRepository borrowRepository
-                = new DatabaseBorrowRepository();
-
-        library
-                = new LibraryManagerImpl(
-                        bookRepository,
-                        studentRepository,
-                        borrowRepository
-                );
-    }
-
+//         BookRepository bookRepository
+//                 = new DatabaseBookRepository();
+//         StudentRepository studentRepository
+//                 = new DatabaseStudentRepository();
+//         BorrowRepository borrowRepository
+//                 = new DatabaseBorrowRepository();
+//         library
+//                 = new LibraryManagerImpl(
+//                         bookRepository,
+//                         studentRepository,
+//                         borrowRepository
+//                 );
+//     }
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Student> getStudents() {

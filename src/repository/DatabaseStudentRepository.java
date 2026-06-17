@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -45,9 +44,9 @@ public class DatabaseStudentRepository implements StudentRepository {
 
             ps.setString(4, student.getBatch());
 
-            ps.setString(5, "SYSTEM");
+            ps.setString(5, student.getCreatedBy());
 
-            ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(6, Timestamp.valueOf(student.getCreatedOn()));
 
             ps.executeUpdate();
 
@@ -159,9 +158,9 @@ public class DatabaseStudentRepository implements StudentRepository {
 
             ps.setString(3, student.getBatch());
 
-            ps.setString(4, "SYSTEM");
+            ps.setString(4, student.getUpdatedBy());
 
-            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(5, Timestamp.valueOf(student.getUpdatedOn()));
 
             ps.setInt(6, student.getStudentId());
 
@@ -199,9 +198,9 @@ public class DatabaseStudentRepository implements StudentRepository {
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, "SYSTEM");
+            ps.setString(1, student.getDeletedBy());
 
-            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(2, Timestamp.valueOf(student.getDeletedOn()));
 
             ps.setInt(3, student.getStudentId());
 
@@ -257,13 +256,44 @@ public class DatabaseStudentRepository implements StudentRepository {
         }
     }
 
-    private Student mapRow(ResultSet rs) throws SQLException {
+    private Student mapRow(ResultSet rs)
+            throws SQLException {
 
-        return new Student(
-                rs.getInt("id"),
-                rs.getString("name"),
-                rs.getString("faculty"),
-                rs.getString("batch")
-        );
+        Student student
+                = new Student(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("faculty"),
+                        rs.getString("batch")
+                );
+
+        student.setCreatedBy(rs.getString("created_by"));
+
+        Timestamp createdOn = rs.getTimestamp("created_on");
+
+        if (createdOn != null) {
+
+            student.setCreatedOn(createdOn.toLocalDateTime());
+        }
+
+        student.setUpdatedBy(rs.getString("updated_by"));
+
+        Timestamp updatedOn = rs.getTimestamp("updated_on");
+
+        if (updatedOn != null) {
+
+            student.setUpdatedOn(updatedOn.toLocalDateTime());
+        }
+
+        student.setDeletedBy(rs.getString("deleted_by"));
+
+        Timestamp deletedOn = rs.getTimestamp("deleted_on");
+
+        if (deletedOn != null) {
+
+            student.setDeletedOn(deletedOn.toLocalDateTime());
+        }
+
+        return student;
     }
 }

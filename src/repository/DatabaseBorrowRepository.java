@@ -62,10 +62,9 @@ public class DatabaseBorrowRepository
 
             statement.setString(6, record.getStatus().name());
 
-            statement.setString(7, "SYSTEM");
+            statement.setString(7, record.getCreatedBy());
 
-            statement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-
+            statement.setTimestamp(8, Timestamp.valueOf(record.getCreatedOn()));
             statement.executeUpdate();
 
             LOGGER.info("Book borrowed successfully.");
@@ -84,7 +83,11 @@ public class DatabaseBorrowRepository
     }
 
     @Override
-    public void returnBook(int borrowId, LocalDate returnDate) {
+    public void returnBook(
+            int borrowId,
+            LocalDate returnDate,
+            String updatedBy,
+            LocalDateTime updatedOn) {
 
         String sql = """
     UPDATE borrow_records
@@ -99,9 +102,9 @@ public class DatabaseBorrowRepository
 
             statement.setDate(1, Date.valueOf(returnDate));
 
-            statement.setString(2, "SYSTEM");
+            statement.setString(2, updatedBy);
 
-            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setTimestamp(3, Timestamp.valueOf(updatedOn));
 
             statement.setInt(4, borrowId);
 
@@ -289,7 +292,7 @@ public class DatabaseBorrowRepository
 
         Date returnDate = rs.getDate("return_date");
 
-        return new BorrowRecord(
+        BorrowRecord record = new BorrowRecord(
                 rs.getInt("borrow_id"),
                 rs.getInt("student_id"),
                 rs.getInt("book_id"),
@@ -300,5 +303,25 @@ public class DatabaseBorrowRepository
                         : returnDate.toLocalDate(),
                 BorrowStatus.valueOf(rs.getString("status"))
         );
+
+        record.setCreatedBy(rs.getString("created_by"));
+
+        Timestamp createdOn = rs.getTimestamp("created_on");
+
+        if (createdOn != null) {
+
+            record.setCreatedOn(createdOn.toLocalDateTime());
+        }
+
+        record.setUpdatedBy(rs.getString("updated_by"));
+
+        Timestamp updatedOn = rs.getTimestamp("updated_on");
+
+        if (updatedOn != null) {
+
+            record.setUpdatedOn(updatedOn.toLocalDateTime());
+        }
+
+        return record;
     }
 }

@@ -1,7 +1,11 @@
 package service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import model.Book;
 import model.BorrowRecord;
 import model.Student;
@@ -9,47 +13,65 @@ import repository.BookRepository;
 import repository.BorrowRepository;
 import repository.StudentRepository;
 
+@Singleton
 public class LibraryManagerImpl implements LibraryManager {
 
-    private final BookRepository bookrepository;
+    @Inject
+    private BookRepository bookRepository;
 
-    private final StudentRepository studentRepository;
-    private final BorrowRepository borrowRepository;
+    @Inject
+    private StudentRepository studentRepository;
 
+    @Inject
+    private BorrowRepository borrowRepository;
+
+    public LibraryManagerImpl() {
+    }
+
+    @Inject
     public LibraryManagerImpl(BookRepository bookrepository, StudentRepository studentRepository, BorrowRepository borrowRepository) {
-        this.bookrepository = bookrepository;
+        this.bookRepository = bookrepository;
         this.studentRepository = studentRepository;
         this.borrowRepository = borrowRepository;
     }
 
     @Override
     public boolean isDuplicateBookId(int id) {
-        return bookrepository.existsById(id);
+        return bookRepository.existsById(id);
     }
 
     @Override
     public void addBook(Book book) {
-        bookrepository.addBook(book);
+        book.setCreatedBy("SYSTEM");
+        book.setCreatedOn(LocalDateTime.now());
+
+        bookRepository.addBook(book);
     }
 
     @Override
     public List<Book> viewBooks() {
-        return bookrepository.getAllBooks();
+        return bookRepository.getAllBooks();
     }
 
     @Override
     public List<Book> searchBook(String value) {
-        return bookrepository.searchBooks(value);
+        return bookRepository.searchBooks(value);
     }
 
     @Override
     public void updateBook(Book book) {
-        bookrepository.updateBook(book);
+        book.setUpdatedBy("SYSTEM");
+        book.setUpdatedOn(LocalDateTime.now());
+
+        bookRepository.updateBook(book);
     }
 
     @Override
     public void deleteBook(Book book) {
-        bookrepository.deleteBook(book);
+        book.setDeletedBy("SYSTEM");
+        book.setDeletedOn(LocalDateTime.now());
+
+        bookRepository.deleteBook(book);
     }
 
     @Override
@@ -60,6 +82,9 @@ public class LibraryManagerImpl implements LibraryManager {
 
     @Override
     public void addStudent(Student student) {
+
+        student.setCreatedBy("SYSTEM");
+        student.setCreatedOn(LocalDateTime.now());
 
         studentRepository.addStudent(student);
     }
@@ -79,17 +104,25 @@ public class LibraryManagerImpl implements LibraryManager {
     @Override
     public void updateStudent(Student student) {
 
+        student.setUpdatedBy("SYSTEM");
+        student.setUpdatedOn(LocalDateTime.now());
+
         studentRepository.updateStudent(student);
     }
 
     @Override
     public void deleteStudent(Student student) {
 
+        student.setDeletedBy("SYSTEM");
+        student.setDeletedOn(LocalDateTime.now());
+
         studentRepository.deleteStudent(student);
     }
 
     @Override
     public void borrowBook(BorrowRecord record) {
+        record.setCreatedBy("SYSTEM");
+        record.setCreatedOn(LocalDateTime.now());
 
         borrowRepository.borrowBook(record);
     }
@@ -97,7 +130,11 @@ public class LibraryManagerImpl implements LibraryManager {
     @Override
     public void returnBook(int borrowId, LocalDate returnDate) {
 
-        borrowRepository.returnBook(borrowId, returnDate);
+        borrowRepository.returnBook(
+                borrowId,
+                returnDate,
+                "SYSTEM",
+                LocalDateTime.now());
     }
 
     @Override

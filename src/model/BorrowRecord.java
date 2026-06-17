@@ -1,6 +1,7 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,6 +22,12 @@ public class BorrowRecord {
     private final LocalDate returnDate;
 
     private final BorrowStatus status;
+
+    private String createdBy;
+    private LocalDateTime createdOn;
+
+    private String updatedBy;
+    private LocalDateTime updatedOn;
 
     public BorrowRecord(
             @JsonProperty("borrowId") int borrowId,
@@ -90,6 +97,38 @@ public class BorrowRecord {
 
     public BorrowStatus getStatus() {
         return status;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public LocalDateTime getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(LocalDateTime createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public LocalDateTime getUpdatedOn() {
+        return updatedOn;
+    }
+
+    public void setUpdatedOn(LocalDateTime updatedOn) {
+        this.updatedOn = updatedOn;
     }
 
     @Override

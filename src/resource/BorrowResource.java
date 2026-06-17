@@ -3,6 +3,7 @@ package resource;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -13,38 +14,27 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.BorrowRecord;
-import repository.BookRepository;
-import repository.BorrowRepository;
-import repository.DatabaseBookRepository;
-import repository.DatabaseBorrowRepository;
-import repository.DatabaseStudentRepository;
-import repository.StudentRepository;
 import service.LibraryManager;
-import service.LibraryManagerImpl;
 
 @Path("/borrow-records")
 public class BorrowResource {
 
-    private final LibraryManager library;
+    @Inject
+    private LibraryManager library;
 
-    public BorrowResource() {
-
-        BookRepository bookRepository
-                = new DatabaseBookRepository();
-
-        StudentRepository studentRepository
-                = new DatabaseStudentRepository();
-
-        BorrowRepository borrowRepository
-                = new DatabaseBorrowRepository();
-
-        library
-                = new LibraryManagerImpl(
-                        bookRepository,
-                        studentRepository,
-                        borrowRepository);
-    }
-
+//     public BorrowResource() {
+//         BookRepository bookRepository
+//                 = new DatabaseBookRepository();
+//         StudentRepository studentRepository
+//                 = new DatabaseStudentRepository();
+//         BorrowRepository borrowRepository
+//                 = new DatabaseBorrowRepository();
+//         library
+//                 = new LibraryManagerImpl(
+//                         bookRepository,
+//                         studentRepository,
+//                         borrowRepository);
+//     }
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<BorrowRecord> getBorrowRecords() {

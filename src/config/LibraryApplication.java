@@ -10,5 +10,7 @@ public class LibraryApplication
         packages("resource");
 
         register(ObjectMapperProvider.class);
+
+        register(new DependencyBinder());
     }
 }

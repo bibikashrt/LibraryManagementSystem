@@ -1,14 +1,16 @@
 package repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+
 import model.BorrowRecord;
 
 public interface BorrowRepository {
 
     void borrowBook(BorrowRecord record);
 
-    void returnBook(int borrowId, LocalDate returnDate);
+    void returnBook(int borrowId, LocalDate returnDate, String updatedBy, LocalDateTime updatedOn);
 
     List<BorrowRecord> getAllBorrowRecords();
 
