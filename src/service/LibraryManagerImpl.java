@@ -4,8 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import model.Book;
 import model.BorrowRecord;
 import model.Student;
@@ -13,16 +13,13 @@ import repository.BookRepository;
 import repository.BorrowRepository;
 import repository.StudentRepository;
 
-@Singleton
+@ApplicationScoped
 public class LibraryManagerImpl implements LibraryManager {
 
-    @Inject
     private BookRepository bookRepository;
 
-    @Inject
     private StudentRepository studentRepository;
 
-    @Inject
     private BorrowRepository borrowRepository;
 
     public LibraryManagerImpl() {

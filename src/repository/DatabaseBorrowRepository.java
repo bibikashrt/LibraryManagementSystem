@@ -17,8 +17,10 @@ import config.DatabaseConnection;
 import config.LoggerConfig;
 import enums.BorrowStatus;
 import exception.LibraryException;
+import jakarta.enterprise.context.ApplicationScoped;
 import model.BorrowRecord;
 
+@ApplicationScoped
 public class DatabaseBorrowRepository
         implements BorrowRepository {
 

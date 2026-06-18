@@ -9,6 +9,7 @@
     <groupId>com.library</groupId>
     <artifactId>LibraryManagementSystem</artifactId>
     <version>1.0</version>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -32,28 +33,41 @@
             <version>4.0.0</version>
         </dependency>
 
-        <!-- Jersey Grizzly HTTP Server -->
         <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>4.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Jersey Grizzly HTTP Server -->
+        <!-- <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-grizzly2-http</artifactId>
             <version>3.1.11</version>
-        </dependency>
+        </dependency> -->
 
         <!-- Jersey HK2 Dependency Injection -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <version>3.1.11</version>
-        </dependency>
+        </dependency> -->
 
        
 
         <!-- JSON Support -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>3.1.11</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>3.1.11</version>
+        </dependency> -->
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -70,6 +84,15 @@
         
         <sourceDirectory>src</sourceDirectory>
 
+        <resources>
+            <resource>
+                <directory>.</directory>
+                <includes>
+                    <include>config.properties</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
 
             <!-- Java Compiler -->
@@ -84,7 +107,7 @@
 
             </plugin>
 
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.4.2</version>
@@ -96,9 +119,9 @@
                         </manifest>
                     </archive>
                 </configuration>
-            </plugin>
+            </plugin> -->
 
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
@@ -106,10 +129,10 @@
                 <configuration>
                     <mainClass>ServerMain</mainClass>
                 </configuration>
-            </plugin>
+            </plugin> -->
 
             <!-- Fat Jar Generator -->
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.6.2</version>
@@ -144,9 +167,20 @@
 
                 </executions>
 
+            </plugin> -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+
+                <configuration>
+                    <webXml>WebContent/WEB-INF/web.xml</webXml>
+                </configuration>
             </plugin>
 
         </plugins>
+
+        
 
     </build>
 

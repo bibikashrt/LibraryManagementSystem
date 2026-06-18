@@ -1,12 +1,11 @@
 package model;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Book {
+public class Book extends SoftDeleteAuditTrail {
 
     public static final int MAX_NAME_LENGTH = 200;
     public static final int MAX_AUTHOR_LENGTH = 100;
@@ -23,15 +22,6 @@ public class Book {
     private final String authorName;
     private final String category;
     private final int publicationYear;
-
-    private String createdBy;
-    private LocalDateTime createdOn;
-
-    private String updatedBy;
-    private LocalDateTime updatedOn;
-
-    private String deletedBy;
-    private LocalDateTime deletedOn;
 
     @JsonCreator
     public Book(
@@ -70,54 +60,6 @@ public class Book {
 
     public int getPublicationYear() {
         return publicationYear;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public LocalDateTime getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(LocalDateTime createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
-
-    public LocalDateTime getUpdatedOn() {
-        return updatedOn;
-    }
-
-    public void setUpdatedOn(LocalDateTime updatedOn) {
-        this.updatedOn = updatedOn;
-    }
-
-    public String getDeletedBy() {
-        return deletedBy;
-    }
-
-    public void setDeletedBy(String deletedBy) {
-        this.deletedBy = deletedBy;
-    }
-
-    public LocalDateTime getDeletedOn() {
-        return deletedOn;
-    }
-
-    public void setDeletedOn(LocalDateTime deletedOn) {
-        this.deletedOn = deletedOn;
     }
 
     public boolean matches(String value) {

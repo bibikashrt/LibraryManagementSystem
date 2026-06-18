@@ -1,16 +1,8 @@
 package config;
 
-import org.glassfish.jersey.server.ResourceConfig;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
-public class LibraryApplication
-        extends ResourceConfig {
-
-    public LibraryApplication() {
-
-        packages("resource");
-
-        register(ObjectMapperProvider.class);
-
-        register(new DependencyBinder());
-    }
+@ApplicationPath("/api")
+public class LibraryApplication extends Application {
 }

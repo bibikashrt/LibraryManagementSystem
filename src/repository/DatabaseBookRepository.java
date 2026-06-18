@@ -13,8 +13,10 @@ import java.util.logging.Logger;
 import config.DatabaseConnection;
 import config.LoggerConfig;
 import exception.LibraryException;
+import jakarta.enterprise.context.ApplicationScoped;
 import model.Book;
 
+@ApplicationScoped
 public class DatabaseBookRepository implements BookRepository {
 
     private static final Logger LOGGER = LoggerConfig.LOGGER;
