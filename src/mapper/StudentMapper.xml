@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.StudentMapper">
+
+   <resultMap id="studentResultMap" type="Student">
+    <constructor>
+        <idArg column="id" javaType="_int"/>
+        <arg column="name" javaType="java.lang.String"/>
+        <arg column="faculty" javaType="java.lang.String"/>
+        <arg column="batch" javaType="java.lang.String"/>
+    </constructor>
+
+    <result property="createdBy" column="created_by"/>
+    <result property="createdOn" column="created_on"/>
+    <result property="updatedBy" column="updated_by"/>
+    <result property="updatedOn" column="updated_on"/>
+    <result property="deletedBy" column="deleted_by"/>
+    <result property="deletedOn" column="deleted_on"/>
+</resultMap>
+
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM students
+            WHERE id = #{studentId}
+              AND deleted_on IS NULL
+        )
+    </select>
+
+    <insert id="addStudent" parameterType="Student">
+        INSERT INTO students (
+            id,
+            name,
+            faculty,
+            batch,
+            created_by,
+            created_on
+        )
+        VALUES (
+            #{studentId},
+            #{studentName},
+            #{faculty},
+            #{batch},
+            #{createdBy},
+            #{createdOn}
+        )
+    </insert>
+
+    <select id="getAllStudents" resultMap="studentResultMap">
+        SELECT
+            id,
+            name,
+            faculty,
+            batch,
+            created_by,
+            created_on,
+            updated_by,
+            updated_on,
+            deleted_by,
+            deleted_on
+        FROM students
+        WHERE deleted_on IS NULL
+        ORDER BY id
+    </select>
+
+    <select id="searchStudents" resultMap="studentResultMap">
+        SELECT
+            id,
+            name,
+            faculty,
+            batch,
+            created_by,
+            created_on,
+            updated_by,
+            updated_on,
+            deleted_by,
+            deleted_on
+        FROM students
+        WHERE deleted_on IS NULL
+          AND (
+                CAST(id AS TEXT) = #{value}
+                OR LOWER(name) LIKE CONCAT('%', LOWER(#{value}), '%')
+                OR LOWER(faculty) LIKE CONCAT('%', LOWER(#{value}), '%')
+                OR LOWER(batch) LIKE CONCAT('%', LOWER(#{value}), '%')
+              )
+        ORDER BY id
+    </select>
+
+    <update id="updateStudent" parameterType="Student">
+        UPDATE students
+        SET
+            name = #{studentName},
+            faculty = #{faculty},
+            batch = #{batch},
+            updated_by = #{updatedBy},
+            updated_on = #{updatedOn}
+        WHERE id = #{studentId}
+          AND deleted_on IS NULL
+    </update>
+
+    <update id="deleteStudent" parameterType="Student">
+        UPDATE students
+        SET
+            deleted_by = #{deletedBy},
+            deleted_on = #{deletedOn}
+        WHERE id = #{studentId}
+          AND deleted_on IS NULL
+    </update>
+
+</mapper>

@@ -4,37 +4,38 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.apache.ibatis.session.SqlSession;
+
+import config.MyBatisUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import mapper.BookMapper;
+import mapper.BorrowMapper;
+import mapper.StudentMapper;
 import model.Book;
 import model.BorrowRecord;
 import model.Student;
-import repository.BookRepository;
-import repository.BorrowRepository;
-import repository.StudentRepository;
 
 @ApplicationScoped
 public class LibraryManagerImpl implements LibraryManager {
 
-    private BookRepository bookRepository;
-
-    private StudentRepository studentRepository;
-
-    private BorrowRepository borrowRepository;
-
+    // private BookRepository bookRepository;
+    // private StudentRepository studentRepository;
+    // private BorrowRepository borrowRepository;
     public LibraryManagerImpl() {
     }
 
-    @Inject
-    public LibraryManagerImpl(BookRepository bookrepository, StudentRepository studentRepository, BorrowRepository borrowRepository) {
-        this.bookRepository = bookrepository;
-        this.studentRepository = studentRepository;
-        this.borrowRepository = borrowRepository;
-    }
-
+    // @Inject
+    // public LibraryManagerImpl(BookRepository bookrepository, StudentRepository studentRepository, BorrowRepository borrowRepository) {
+    //     this.bookRepository = bookrepository;
+    //     this.studentRepository = studentRepository;
+    //     this.borrowRepository = borrowRepository;
+    // }
     @Override
     public boolean isDuplicateBookId(int id) {
-        return bookRepository.existsById(id);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BookMapper mapper = session.getMapper(BookMapper.class);
+            return mapper.existsById(id);
+        }
     }
 
     @Override
@@ -42,17 +43,26 @@ public class LibraryManagerImpl implements LibraryManager {
         book.setCreatedBy("SYSTEM");
         book.setCreatedOn(LocalDateTime.now());
 
-        bookRepository.addBook(book);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            BookMapper mapper = session.getMapper(BookMapper.class);
+            mapper.addBook(book);
+        }
     }
 
     @Override
     public List<Book> viewBooks() {
-        return bookRepository.getAllBooks();
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BookMapper mapper = session.getMapper(BookMapper.class);
+            return mapper.getAllBooks();
+        }
     }
 
     @Override
     public List<Book> searchBook(String value) {
-        return bookRepository.searchBooks(value);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BookMapper mapper = session.getMapper(BookMapper.class);
+            return mapper.searchBooks(value);
+        }
     }
 
     @Override
@@ -60,7 +70,10 @@ public class LibraryManagerImpl implements LibraryManager {
         book.setUpdatedBy("SYSTEM");
         book.setUpdatedOn(LocalDateTime.now());
 
-        bookRepository.updateBook(book);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            BookMapper mapper = session.getMapper(BookMapper.class);
+            mapper.updateBook(book);
+        }
     }
 
     @Override
@@ -68,13 +81,19 @@ public class LibraryManagerImpl implements LibraryManager {
         book.setDeletedBy("SYSTEM");
         book.setDeletedOn(LocalDateTime.now());
 
-        bookRepository.deleteBook(book);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            BookMapper mapper = session.getMapper(BookMapper.class);
+            mapper.deleteBook(book);
+        }
     }
 
     @Override
     public boolean isDuplicateStudentId(int id) {
 
-        return studentRepository.existsById(id);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            return mapper.existsById(id);
+        }
     }
 
     @Override
@@ -83,19 +102,28 @@ public class LibraryManagerImpl implements LibraryManager {
         student.setCreatedBy("SYSTEM");
         student.setCreatedOn(LocalDateTime.now());
 
-        studentRepository.addStudent(student);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            mapper.addStudent(student);
+        }
     }
 
     @Override
     public List<Student> viewStudents() {
 
-        return studentRepository.getAllStudents();
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            return mapper.getAllStudents();
+        }
     }
 
     @Override
     public List<Student> searchStudent(String value) {
 
-        return studentRepository.searchStudents(value);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            return mapper.searchStudents(value);
+        }
     }
 
     @Override
@@ -104,7 +132,10 @@ public class LibraryManagerImpl implements LibraryManager {
         student.setUpdatedBy("SYSTEM");
         student.setUpdatedOn(LocalDateTime.now());
 
-        studentRepository.updateStudent(student);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            mapper.updateStudent(student);
+        }
     }
 
     @Override
@@ -113,7 +144,10 @@ public class LibraryManagerImpl implements LibraryManager {
         student.setDeletedBy("SYSTEM");
         student.setDeletedOn(LocalDateTime.now());
 
-        studentRepository.deleteStudent(student);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            mapper.deleteStudent(student);
+        }
     }
 
     @Override
@@ -121,40 +155,59 @@ public class LibraryManagerImpl implements LibraryManager {
         record.setCreatedBy("SYSTEM");
         record.setCreatedOn(LocalDateTime.now());
 
-        borrowRepository.borrowBook(record);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            BorrowMapper mapper = session.getMapper(BorrowMapper.class);
+            mapper.borrowBook(record);
+        }
     }
 
     @Override
     public void returnBook(int borrowId, LocalDate returnDate) {
 
-        borrowRepository.returnBook(
-                borrowId,
-                returnDate,
-                "SYSTEM",
-                LocalDateTime.now());
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+            BorrowMapper mapper = session.getMapper(BorrowMapper.class);
+            mapper.returnBook(
+                    borrowId,
+                    returnDate,
+                    "SYSTEM",
+                    LocalDateTime.now()
+            );
+        }
     }
 
     @Override
     public List<BorrowRecord> viewBorrowRecords() {
 
-        return borrowRepository.getAllBorrowRecords();
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BorrowMapper mapper = session.getMapper(BorrowMapper.class);
+            return mapper.getAllBorrowRecords();
+        }
     }
 
     @Override
     public List<BorrowRecord> viewOverdueBorrowRecords() {
 
-        return borrowRepository.getOverdueBorrowRecords();
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BorrowMapper mapper = session.getMapper(BorrowMapper.class);
+            return mapper.getOverdueBorrowRecords();
+        }
     }
 
     @Override
     public boolean isBorrowRecordExists(int borrowId) {
 
-        return borrowRepository.existsByBorrowId(borrowId);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BorrowMapper mapper = session.getMapper(BorrowMapper.class);
+            return mapper.existsByBorrowId(borrowId);
+        }
     }
 
     @Override
     public boolean isBookAvailable(int bookId) {
 
-        return !borrowRepository.isBookBorrowed(bookId);
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BorrowMapper mapper = session.getMapper(BorrowMapper.class);
+            return !mapper.isBookBorrowed(bookId);
+        }
     }
 }

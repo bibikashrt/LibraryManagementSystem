@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.BorrowMapper">
+
+   <resultMap id="borrowRecordResultMap" type="BorrowRecord">
+    <constructor>
+        <idArg column="borrow_id" javaType="_int"/>
+        <arg column="student_id" javaType="_int"/>
+        <arg column="book_id" javaType="_int"/>
+        <arg column="issue_date" javaType="java.time.LocalDate"/>
+        <arg column="due_date" javaType="java.time.LocalDate"/>
+        <arg column="return_date" javaType="java.time.LocalDate"/>
+        <arg column="status" javaType="enums.BorrowStatus"/>
+    </constructor>
+
+    <result property="createdBy" column="created_by"/>
+    <result property="createdOn" column="created_on"/>
+    <result property="updatedBy" column="updated_by"/>
+    <result property="updatedOn" column="updated_on"/>
+</resultMap>
+
+    <insert id="borrowBook" parameterType="BorrowRecord">
+        INSERT INTO borrow_records (
+            
+            student_id,
+            book_id,
+            issue_date,
+            due_date,
+            return_date,
+            status,
+            created_by,
+            created_on
+        )
+        VALUES (
+            
+            #{studentId},
+            #{bookId},
+            #{issueDate},
+            #{dueDate},
+            #{returnDate},
+            #{status},
+            #{createdBy},
+            #{createdOn}
+        )
+    </insert>
+
+    <update id="returnBook">
+        UPDATE borrow_records
+        SET
+            return_date = #{returnDate},
+            status = 'RETURNED',
+            updated_by = #{updatedBy},
+            updated_on = #{updatedOn}
+        WHERE borrow_id = #{borrowId}
+        AND return_date IS NULL
+    </update>
+
+    <select id="getAllBorrowRecords" resultMap="borrowRecordResultMap">
+        SELECT
+            borrow_id,
+            student_id,
+            book_id,
+            issue_date,
+            due_date,
+            return_date,
+            status,
+            created_by,
+            created_on,
+            updated_by,
+            updated_on
+        FROM borrow_records
+        ORDER BY borrow_id
+    </select>
+
+    <select id="getOverdueBorrowRecords" resultMap="borrowRecordResultMap">
+        SELECT
+            borrow_id,
+            student_id,
+            book_id,
+            issue_date,
+            due_date,
+            return_date,
+            status,
+            created_by,
+            created_on,
+            updated_by,
+            updated_on
+        FROM borrow_records
+        WHERE return_date IS NULL
+          AND due_date &lt; CURRENT_DATE
+          AND status = 'BORROWED'
+        ORDER BY due_date
+    </select>
+
+    <select id="existsByBorrowId" parameterType="int" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM borrow_records
+            WHERE borrow_id = #{borrowId}
+        )
+    </select>
+
+    <select id="isBookBorrowed" parameterType="int" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM borrow_records
+            WHERE book_id = #{bookId}
+              AND return_date IS NULL
+        )
+    </select>
+
+</mapper>

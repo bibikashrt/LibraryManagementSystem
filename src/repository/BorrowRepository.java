@@ -1,24 +1,24 @@
-package repository;
+// package repository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+// import java.time.LocalDate;
+// import java.time.LocalDateTime;
+// import java.util.List;
 
-import model.BorrowRecord;
+// import model.BorrowRecord;
 
-public interface BorrowRepository {
+// public interface BorrowRepository {
 
-    void borrowBook(BorrowRecord record);
+//     void borrowBook(BorrowRecord record);
 
-    void returnBook(int borrowId, LocalDate returnDate, String updatedBy, LocalDateTime updatedOn);
+//     void returnBook(int borrowId, LocalDate returnDate, String updatedBy, LocalDateTime updatedOn);
 
-    List<BorrowRecord> getAllBorrowRecords();
+//     List<BorrowRecord> getAllBorrowRecords();
 
-    List<BorrowRecord> getActiveBorrowRecords();
+//     List<BorrowRecord> getActiveBorrowRecords();
 
-    List<BorrowRecord> getOverdueBorrowRecords();
+//     List<BorrowRecord> getOverdueBorrowRecords();
 
-    boolean isBookBorrowed(int bookId);
+//     boolean isBookBorrowed(int bookId);
 
-    boolean existsByBorrowId(int borrowId);
-}
+//     boolean existsByBorrowId(int borrowId);
+// }

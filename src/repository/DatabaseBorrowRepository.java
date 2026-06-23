@@ -1,329 +1,329 @@
-package repository;
-
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
+// package repository;
+
+// import java.sql.Connection;
+// import java.sql.Date;
+// import java.sql.PreparedStatement;
+// import java.sql.ResultSet;
+// import java.sql.SQLException;
+// import java.sql.Statement;
+// import java.sql.Timestamp;
+// import java.time.LocalDate;
+// import java.time.LocalDateTime;
+// import java.util.ArrayList;
+// import java.util.List;
+// import java.util.logging.Logger;
 
-import config.DatabaseConnection;
-import config.LoggerConfig;
-import enums.BorrowStatus;
-import exception.LibraryException;
-import jakarta.enterprise.context.ApplicationScoped;
-import model.BorrowRecord;
+// import config.DatabaseConnection;
+// import config.LoggerConfig;
+// import enums.BorrowStatus;
+// import exception.LibraryException;
+// import jakarta.enterprise.context.ApplicationScoped;
+// import model.BorrowRecord;
 
-@ApplicationScoped
-public class DatabaseBorrowRepository
-        implements BorrowRepository {
+// @ApplicationScoped
+// public class DatabaseBorrowRepository
+//         implements BorrowRepository {
 
-    private static final Logger LOGGER = LoggerConfig.LOGGER;
+//     private static final Logger LOGGER = LoggerConfig.LOGGER;
 
-    @Override
-    public void borrowBook(BorrowRecord record) {
+//     @Override
+//     public void borrowBook(BorrowRecord record) {
 
-        String sql = """
-    INSERT INTO borrow_records(
-        student_id,
-        book_id,
-        issue_date,
-        due_date,
-        return_date,
-        status,
-        created_by,
-        created_on
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """;
+//         String sql = """
+//     INSERT INTO borrow_records(
+//         student_id,
+//         book_id,
+//         issue_date,
+//         due_date,
+//         return_date,
+//         status,
+//         created_by,
+//         created_on
+//     )
+//     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+//     """;
 
-        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+//         try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, record.getStudentId());
+//             statement.setInt(1, record.getStudentId());
 
-            statement.setInt(2, record.getBookId());
+//             statement.setInt(2, record.getBookId());
 
-            statement.setDate(3, Date.valueOf(record.getIssueDate()));
+//             statement.setDate(3, Date.valueOf(record.getIssueDate()));
 
-            statement.setDate(4, Date.valueOf(record.getDueDate()));
+//             statement.setDate(4, Date.valueOf(record.getDueDate()));
 
-            if (record.getReturnDate() == null) {
+//             if (record.getReturnDate() == null) {
 
-                statement.setNull(5, java.sql.Types.DATE);
+//                 statement.setNull(5, java.sql.Types.DATE);
 
-            } else {
+//             } else {
 
-                statement.setDate(5, Date.valueOf(record.getReturnDate()));
-            }
+//                 statement.setDate(5, Date.valueOf(record.getReturnDate()));
+//             }
 
-            statement.setString(6, record.getStatus().name());
+//             statement.setString(6, record.getStatus().name());
 
-            statement.setString(7, record.getCreatedBy());
+//             statement.setString(7, record.getCreatedBy());
 
-            statement.setTimestamp(8, Timestamp.valueOf(record.getCreatedOn()));
-            statement.executeUpdate();
+//             statement.setTimestamp(8, Timestamp.valueOf(record.getCreatedOn()));
+//             statement.executeUpdate();
 
-            LOGGER.info("Book borrowed successfully.");
+//             LOGGER.info("Book borrowed successfully.");
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to borrow book. Student ID="
-                    + record.getStudentId()
-                    + ", Book ID="
-                    + record.getBookId()
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to borrow book. Student ID="
+//                     + record.getStudentId()
+//                     + ", Book ID="
+//                     + record.getBookId()
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to borrow book.", e);
-        }
-    }
+//             throw new LibraryException("Failed to borrow book.", e);
+//         }
+//     }
 
-    @Override
-    public void returnBook(
-            int borrowId,
-            LocalDate returnDate,
-            String updatedBy,
-            LocalDateTime updatedOn) {
+//     @Override
+//     public void returnBook(
+//             int borrowId,
+//             LocalDate returnDate,
+//             String updatedBy,
+//             LocalDateTime updatedOn) {
 
-        String sql = """
-    UPDATE borrow_records
-    SET return_date = ?,
-        status = 'RETURNED',
-        updated_by = ?,
-        updated_on = ?
-    WHERE borrow_id = ?
-    """;
+//         String sql = """
+//     UPDATE borrow_records
+//     SET return_date = ?,
+//         status = 'RETURNED',
+//         updated_by = ?,
+//         updated_on = ?
+//     WHERE borrow_id = ?
+//     """;
 
-        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+//         try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setDate(1, Date.valueOf(returnDate));
+//             statement.setDate(1, Date.valueOf(returnDate));
 
-            statement.setString(2, updatedBy);
+//             statement.setString(2, updatedBy);
 
-            statement.setTimestamp(3, Timestamp.valueOf(updatedOn));
+//             statement.setTimestamp(3, Timestamp.valueOf(updatedOn));
 
-            statement.setInt(4, borrowId);
+//             statement.setInt(4, borrowId);
 
-            int rows = statement.executeUpdate();
+//             int rows = statement.executeUpdate();
 
-            if (rows == 0) {
+//             if (rows == 0) {
 
-                LOGGER.warning("Return attempt failed. Borrow ID not found: " + borrowId);
+//                 LOGGER.warning("Return attempt failed. Borrow ID not found: " + borrowId);
 
-                throw new LibraryException("Borrow record not found.");
-            }
+//                 throw new LibraryException("Borrow record not found.");
+//             }
 
-            LOGGER.info("Book returned successfully.");
+//             LOGGER.info("Book returned successfully.");
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to return book. Borrow ID="
-                    + borrowId
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to return book. Borrow ID="
+//                     + borrowId
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to return book.", e);
-        }
-    }
+//             throw new LibraryException("Failed to return book.", e);
+//         }
+//     }
 
-    @Override
-    public boolean isBookBorrowed(int bookId) {
+//     @Override
+//     public boolean isBookBorrowed(int bookId) {
 
-        String sql
-                = """
-                SELECT COUNT(*)
-                FROM borrow_records
-                WHERE book_id = ?
-                AND status = 'BORROWED'
-                """;
+//         String sql
+//                 = """
+//                 SELECT COUNT(*)
+//                 FROM borrow_records
+//                 WHERE book_id = ?
+//                 AND status = 'BORROWED'
+//                 """;
 
-        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+//         try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, bookId);
+//             statement.setInt(1, bookId);
 
-            ResultSet rs = statement.executeQuery();
+//             ResultSet rs = statement.executeQuery();
 
-            rs.next();
+//             rs.next();
 
-            return rs.getInt(1) > 0;
+//             return rs.getInt(1) > 0;
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to check borrow status for Book ID="
-                    + bookId
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to check borrow status for Book ID="
+//                     + bookId
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to check borrow status.", e);
-        }
-    }
+//             throw new LibraryException("Failed to check borrow status.", e);
+//         }
+//     }
 
-    @Override
-    public boolean existsByBorrowId(int borrowId) {
+//     @Override
+//     public boolean existsByBorrowId(int borrowId) {
 
-        String sql
-                = """
-                SELECT 1
-                FROM borrow_records
-                WHERE borrow_id = ?
-                """;
+//         String sql
+//                 = """
+//                 SELECT 1
+//                 FROM borrow_records
+//                 WHERE borrow_id = ?
+//                 """;
 
-        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+//         try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, borrowId);
+//             statement.setInt(1, borrowId);
 
-            ResultSet rs = statement.executeQuery();
+//             ResultSet rs = statement.executeQuery();
 
-            return rs.next();
+//             return rs.next();
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to check borrow ID: "
-                    + borrowId
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to check borrow ID: "
+//                     + borrowId
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to check borrow ID.", e);
-        }
-    }
+//             throw new LibraryException("Failed to check borrow ID.", e);
+//         }
+//     }
 
-    @Override
-    public List<BorrowRecord> getAllBorrowRecords() {
+//     @Override
+//     public List<BorrowRecord> getAllBorrowRecords() {
 
-        List<BorrowRecord> records = new ArrayList<>();
+//         List<BorrowRecord> records = new ArrayList<>();
 
-        String sql
-                = """
-                SELECT *
-                FROM borrow_records
-                ORDER BY borrow_id DESC
-                """;
+//         String sql
+//                 = """
+//                 SELECT *
+//                 FROM borrow_records
+//                 ORDER BY borrow_id DESC
+//                 """;
 
-        try (Connection connection = DatabaseConnection.getConnection(); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(sql)) {
+//         try (Connection connection = DatabaseConnection.getConnection(); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(sql)) {
 
-            while (rs.next()) {
+//             while (rs.next()) {
 
-                records.add(mapRow(rs));
-            }
+//                 records.add(mapRow(rs));
+//             }
 
-            return records;
+//             return records;
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to fetch borrow records. Error: " + e.getMessage());
+//             LOGGER.severe("Failed to fetch borrow records. Error: " + e.getMessage());
 
-            throw new LibraryException("Failed to fetch borrow records.", e);
-        }
-    }
+//             throw new LibraryException("Failed to fetch borrow records.", e);
+//         }
+//     }
 
-    @Override
-    public List<BorrowRecord> getActiveBorrowRecords() {
+//     @Override
+//     public List<BorrowRecord> getActiveBorrowRecords() {
 
-        return getByStatus("BORROWED");
-    }
+//         return getByStatus("BORROWED");
+//     }
 
-    @Override
-    public List<BorrowRecord> getOverdueBorrowRecords() {
+//     @Override
+//     public List<BorrowRecord> getOverdueBorrowRecords() {
 
-        List<BorrowRecord> records = new ArrayList<>();
+//         List<BorrowRecord> records = new ArrayList<>();
 
-        String sql
-                = """
-                SELECT *
-                FROM borrow_records
-                WHERE status = 'BORROWED'
-                AND due_date < CURRENT_DATE
-                """;
+//         String sql
+//                 = """
+//                 SELECT *
+//                 FROM borrow_records
+//                 WHERE status = 'BORROWED'
+//                 AND due_date < CURRENT_DATE
+//                 """;
 
-        try (Connection connection = DatabaseConnection.getConnection(); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(sql)) {
+//         try (Connection connection = DatabaseConnection.getConnection(); Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(sql)) {
 
-            while (rs.next()) {
+//             while (rs.next()) {
 
-                records.add(mapRow(rs));
-            }
+//                 records.add(mapRow(rs));
+//             }
 
-            return records;
+//             return records;
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            throw new LibraryException("Failed to fetch overdue records.", e);
-        }
-    }
+//             throw new LibraryException("Failed to fetch overdue records.", e);
+//         }
+//     }
 
-    private List<BorrowRecord> getByStatus(String status) {
+//     private List<BorrowRecord> getByStatus(String status) {
 
-        List<BorrowRecord> records = new ArrayList<>();
+//         List<BorrowRecord> records = new ArrayList<>();
 
-        String sql
-                = """
-                SELECT *
-                FROM borrow_records
-                WHERE status = ?
-                ORDER BY borrow_id DESC
-                """;
+//         String sql
+//                 = """
+//                 SELECT *
+//                 FROM borrow_records
+//                 WHERE status = ?
+//                 ORDER BY borrow_id DESC
+//                 """;
 
-        try (
-                Connection connection
-                = DatabaseConnection.getConnection(); PreparedStatement statement
-                = connection.prepareStatement(sql)) {
+//         try (
+//                 Connection connection
+//                 = DatabaseConnection.getConnection(); PreparedStatement statement
+//                 = connection.prepareStatement(sql)) {
 
-            statement.setString(1, status);
+//             statement.setString(1, status);
 
-            ResultSet rs = statement.executeQuery();
+//             ResultSet rs = statement.executeQuery();
 
-            while (rs.next()) {
+//             while (rs.next()) {
 
-                records.add(mapRow(rs));
-            }
+//                 records.add(mapRow(rs));
+//             }
 
-            return records;
+//             return records;
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            throw new LibraryException("Failed to fetch records.", e);
-        }
-    }
+//             throw new LibraryException("Failed to fetch records.", e);
+//         }
+//     }
 
-    private BorrowRecord mapRow(ResultSet rs) throws SQLException {
+//     private BorrowRecord mapRow(ResultSet rs) throws SQLException {
 
-        Date returnDate = rs.getDate("return_date");
+//         Date returnDate = rs.getDate("return_date");
 
-        BorrowRecord record = new BorrowRecord(
-                rs.getInt("borrow_id"),
-                rs.getInt("student_id"),
-                rs.getInt("book_id"),
-                rs.getDate("issue_date").toLocalDate(),
-                rs.getDate("due_date").toLocalDate(),
-                returnDate == null
-                        ? null
-                        : returnDate.toLocalDate(),
-                BorrowStatus.valueOf(rs.getString("status"))
-        );
+//         BorrowRecord record = new BorrowRecord(
+//                 rs.getInt("borrow_id"),
+//                 rs.getInt("student_id"),
+//                 rs.getInt("book_id"),
+//                 rs.getDate("issue_date").toLocalDate(),
+//                 rs.getDate("due_date").toLocalDate(),
+//                 returnDate == null
+//                         ? null
+//                         : returnDate.toLocalDate(),
+//                 BorrowStatus.valueOf(rs.getString("status"))
+//         );
 
-        record.setCreatedBy(rs.getString("created_by"));
+//         record.setCreatedBy(rs.getString("created_by"));
 
-        Timestamp createdOn = rs.getTimestamp("created_on");
+//         Timestamp createdOn = rs.getTimestamp("created_on");
 
-        if (createdOn != null) {
+//         if (createdOn != null) {
 
-            record.setCreatedOn(createdOn.toLocalDateTime());
-        }
+//             record.setCreatedOn(createdOn.toLocalDateTime());
+//         }
 
-        record.setUpdatedBy(rs.getString("updated_by"));
+//         record.setUpdatedBy(rs.getString("updated_by"));
 
-        Timestamp updatedOn = rs.getTimestamp("updated_on");
+//         Timestamp updatedOn = rs.getTimestamp("updated_on");
 
-        if (updatedOn != null) {
+//         if (updatedOn != null) {
 
-            record.setUpdatedOn(updatedOn.toLocalDateTime());
-        }
+//             record.setUpdatedOn(updatedOn.toLocalDateTime());
+//         }
 
-        return record;
-    }
-}
+//         return record;
+//     }
+// }

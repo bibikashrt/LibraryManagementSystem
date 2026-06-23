@@ -1,19 +1,19 @@
-package repository;
+// package repository;
 
-import java.util.List;
-import model.Student;
+// import java.util.List;
+// import model.Student;
 
-public interface StudentRepository {
+// public interface StudentRepository {
 
-    void addStudent(Student student);
+//     void addStudent(Student student);
 
-    List<Student> getAllStudents();
+//     List<Student> getAllStudents();
 
-    List<Student> searchStudents(String value);
+//     List<Student> searchStudents(String value);
 
-    void updateStudent(Student student);
+//     void updateStudent(Student student);
 
-    void deleteStudent(Student student);
+//     void deleteStudent(Student student);
 
-    boolean existsById(int studentId);
-}
+//     boolean existsById(int studentId);
+// }

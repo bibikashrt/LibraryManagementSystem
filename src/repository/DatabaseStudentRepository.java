@@ -1,301 +1,301 @@
-package repository;
+// package repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
+// import java.sql.Connection;
+// import java.sql.PreparedStatement;
+// import java.sql.ResultSet;
+// import java.sql.SQLException;
+// import java.sql.Statement;
+// import java.sql.Timestamp;
+// import java.util.ArrayList;
+// import java.util.List;
+// import java.util.logging.Logger;
 
-import config.DatabaseConnection;
-import config.LoggerConfig;
-import exception.LibraryException;
-import jakarta.enterprise.context.ApplicationScoped;
-import model.Student;
+// import config.DatabaseConnection;
+// import config.LoggerConfig;
+// import exception.LibraryException;
+// import jakarta.enterprise.context.ApplicationScoped;
+// import model.Student;
 
-@ApplicationScoped
-public class DatabaseStudentRepository implements StudentRepository {
+// @ApplicationScoped
+// public class DatabaseStudentRepository implements StudentRepository {
 
-    private static final Logger LOGGER = LoggerConfig.LOGGER;
+//     private static final Logger LOGGER = LoggerConfig.LOGGER;
 
-    @Override
-    public void addStudent(Student student) {
+//     @Override
+//     public void addStudent(Student student) {
 
-        String sql = """
-    INSERT INTO students (
-        id,
-        name,
-        faculty,
-        batch,
-        created_by,
-        created_on
-    )
-    VALUES (?, ?, ?, ?, ?, ?)
-    """;
+//         String sql = """
+//     INSERT INTO students (
+//         id,
+//         name,
+//         faculty,
+//         batch,
+//         created_by,
+//         created_on
+//     )
+//     VALUES (?, ?, ?, ?, ?, ?)
+//     """;
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, student.getStudentId());
+//             ps.setInt(1, student.getStudentId());
 
-            ps.setString(2, student.getStudentName());
+//             ps.setString(2, student.getStudentName());
 
-            ps.setString(3, student.getFaculty());
+//             ps.setString(3, student.getFaculty());
 
-            ps.setString(4, student.getBatch());
+//             ps.setString(4, student.getBatch());
 
-            ps.setString(5, student.getCreatedBy());
+//             ps.setString(5, student.getCreatedBy());
 
-            ps.setTimestamp(6, Timestamp.valueOf(student.getCreatedOn()));
+//             ps.setTimestamp(6, Timestamp.valueOf(student.getCreatedOn()));
 
-            ps.executeUpdate();
+//             ps.executeUpdate();
 
-            LOGGER.info("Student added successfully. ID=" + student.getStudentId());
+//             LOGGER.info("Student added successfully. ID=" + student.getStudentId());
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Database error while adding student: " + e.getMessage());
+//             LOGGER.severe("Database error while adding student: " + e.getMessage());
 
-            throw new LibraryException("Failed to add student.", e);
-        }
-    }
+//             throw new LibraryException("Failed to add student.", e);
+//         }
+//     }
 
-    @Override
-    public List<Student> getAllStudents() {
+//     @Override
+//     public List<Student> getAllStudents() {
 
-        List<Student> students = new ArrayList<>();
+//         List<Student> students = new ArrayList<>();
 
-        String sql = """
-    SELECT *
-    FROM students
-    WHERE deleted_on IS NULL
-    ORDER BY id
-    """;
+//         String sql = """
+//     SELECT *
+//     FROM students
+//     WHERE deleted_on IS NULL
+//     ORDER BY id
+//     """;
 
-        try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+//         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()) {
+//             while (rs.next()) {
 
-                students.add(mapRow(rs));
-            }
+//                 students.add(mapRow(rs));
+//             }
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to retrieve students. Error: " + e.getMessage());
+//             LOGGER.severe("Failed to retrieve students. Error: " + e.getMessage());
 
-            throw new LibraryException("Failed to retrieve students.", e);
-        }
+//             throw new LibraryException("Failed to retrieve students.", e);
+//         }
 
-        return students;
-    }
+//         return students;
+//     }
 
-    @Override
-    public List<Student> searchStudents(String value) {
+//     @Override
+//     public List<Student> searchStudents(String value) {
 
-        List<Student> students = new ArrayList<>();
+//         List<Student> students = new ArrayList<>();
 
-        String sql = """
-    SELECT *
-    FROM students
-    WHERE deleted_on IS NULL
-      AND (
-            CAST(id AS VARCHAR) = ?
-         OR LOWER(name) LIKE ?
-         OR LOWER(faculty) LIKE ?
-         OR LOWER(batch) LIKE ?
-      )
-    ORDER BY id
-    """;
+//         String sql = """
+//     SELECT *
+//     FROM students
+//     WHERE deleted_on IS NULL
+//       AND (
+//             CAST(id AS VARCHAR) = ?
+//          OR LOWER(name) LIKE ?
+//          OR LOWER(faculty) LIKE ?
+//          OR LOWER(batch) LIKE ?
+//       )
+//     ORDER BY id
+//     """;
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            String search = value.trim().toLowerCase();
+//             String search = value.trim().toLowerCase();
 
-            ps.setString(1, search);
-            ps.setString(2, "%" + search + "%");
-            ps.setString(3, "%" + search + "%");
-            ps.setString(4, "%" + search + "%");
+//             ps.setString(1, search);
+//             ps.setString(2, "%" + search + "%");
+//             ps.setString(3, "%" + search + "%");
+//             ps.setString(4, "%" + search + "%");
 
-            try (ResultSet rs = ps.executeQuery()) {
+//             try (ResultSet rs = ps.executeQuery()) {
 
-                while (rs.next()) {
+//                 while (rs.next()) {
 
-                    students.add(mapRow(rs));
-                }
-            }
+//                     students.add(mapRow(rs));
+//                 }
+//             }
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to search students. Search value: "
-                    + value
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to search students. Search value: "
+//                     + value
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to search students.", e);
-        }
+//             throw new LibraryException("Failed to search students.", e);
+//         }
 
-        return students;
-    }
+//         return students;
+//     }
 
-    @Override
-    public void updateStudent(Student student) {
+//     @Override
+//     public void updateStudent(Student student) {
 
-        String sql = """
-            UPDATE students
-            SET name = ?,
-                faculty = ?,
-                batch = ?,
-                updated_by = ?,
-                updated_on = ?
-            WHERE id = ?
-            """;
+//         String sql = """
+//             UPDATE students
+//             SET name = ?,
+//                 faculty = ?,
+//                 batch = ?,
+//                 updated_by = ?,
+//                 updated_on = ?
+//             WHERE id = ?
+//             """;
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, student.getStudentName());
+//             ps.setString(1, student.getStudentName());
 
-            ps.setString(2, student.getFaculty());
+//             ps.setString(2, student.getFaculty());
 
-            ps.setString(3, student.getBatch());
+//             ps.setString(3, student.getBatch());
 
-            ps.setString(4, student.getUpdatedBy());
+//             ps.setString(4, student.getUpdatedBy());
 
-            ps.setTimestamp(5, Timestamp.valueOf(student.getUpdatedOn()));
+//             ps.setTimestamp(5, Timestamp.valueOf(student.getUpdatedOn()));
 
-            ps.setInt(6, student.getStudentId());
+//             ps.setInt(6, student.getStudentId());
 
-            int rows = ps.executeUpdate();
+//             int rows = ps.executeUpdate();
 
-            if (rows == 0) {
+//             if (rows == 0) {
 
-                LOGGER.warning("Update failed. Student not found. ID=" + student.getStudentId());
+//                 LOGGER.warning("Update failed. Student not found. ID=" + student.getStudentId());
 
-            } else {
+//             } else {
 
-                LOGGER.info("Student updated successfully. ID=" + student.getStudentId());
-            }
+//                 LOGGER.info("Student updated successfully. ID=" + student.getStudentId());
+//             }
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to update student. ID="
-                    + student.getStudentId()
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to update student. ID="
+//                     + student.getStudentId()
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to update student.", e);
-        }
-    }
+//             throw new LibraryException("Failed to update student.", e);
+//         }
+//     }
 
-    @Override
-    public void deleteStudent(Student student) {
+//     @Override
+//     public void deleteStudent(Student student) {
 
-        String sql = """
-    UPDATE students
-    SET deleted_by = ?,
-        deleted_on = ?
-    WHERE id = ?
-    """;
+//         String sql = """
+//     UPDATE students
+//     SET deleted_by = ?,
+//         deleted_on = ?
+//     WHERE id = ?
+//     """;
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, student.getDeletedBy());
+//             ps.setString(1, student.getDeletedBy());
 
-            ps.setTimestamp(2, Timestamp.valueOf(student.getDeletedOn()));
+//             ps.setTimestamp(2, Timestamp.valueOf(student.getDeletedOn()));
 
-            ps.setInt(3, student.getStudentId());
+//             ps.setInt(3, student.getStudentId());
 
-            int rows = ps.executeUpdate();
+//             int rows = ps.executeUpdate();
 
-            if (rows == 0) {
+//             if (rows == 0) {
 
-                LOGGER.warning("Delete failed. Student not found. ID=" + student.getStudentId());
+//                 LOGGER.warning("Delete failed. Student not found. ID=" + student.getStudentId());
 
-            } else {
+//             } else {
 
-                LOGGER.info("Student deleted successfully. ID=" + student.getStudentId());
-            }
+//                 LOGGER.info("Student deleted successfully. ID=" + student.getStudentId());
+//             }
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to delete student. ID="
-                    + student.getStudentId()
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to delete student. ID="
+//                     + student.getStudentId()
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to delete student.", e);
-        }
-    }
+//             throw new LibraryException("Failed to delete student.", e);
+//         }
+//     }
 
-    @Override
-    public boolean existsById(int studentId) {
+//     @Override
+//     public boolean existsById(int studentId) {
 
-        String sql = """
-    SELECT COUNT(*)
-    FROM students
-    WHERE id = ?
-      AND deleted_on IS NULL
-    """;
+//         String sql = """
+//     SELECT COUNT(*)
+//     FROM students
+//     WHERE id = ?
+//       AND deleted_on IS NULL
+//     """;
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, studentId);
+//             ps.setInt(1, studentId);
 
-            try (ResultSet rs = ps.executeQuery()) {
+//             try (ResultSet rs = ps.executeQuery()) {
 
-                return rs.next() && rs.getInt(1) > 0;
-            }
+//                 return rs.next() && rs.getInt(1) > 0;
+//             }
 
-        } catch (SQLException e) {
+//         } catch (SQLException e) {
 
-            LOGGER.severe("Failed to check student existence. ID="
-                    + studentId
-                    + ". Error: "
-                    + e.getMessage());
+//             LOGGER.severe("Failed to check student existence. ID="
+//                     + studentId
+//                     + ". Error: "
+//                     + e.getMessage());
 
-            throw new LibraryException("Failed to check student existence.", e);
-        }
-    }
+//             throw new LibraryException("Failed to check student existence.", e);
+//         }
+//     }
 
-    private Student mapRow(ResultSet rs)
-            throws SQLException {
+//     private Student mapRow(ResultSet rs)
+//             throws SQLException {
 
-        Student student
-                = new Student(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("faculty"),
-                        rs.getString("batch")
-                );
+//         Student student
+//                 = new Student(
+//                         rs.getInt("id"),
+//                         rs.getString("name"),
+//                         rs.getString("faculty"),
+//                         rs.getString("batch")
+//                 );
 
-        student.setCreatedBy(rs.getString("created_by"));
+//         student.setCreatedBy(rs.getString("created_by"));
 
-        Timestamp createdOn = rs.getTimestamp("created_on");
+//         Timestamp createdOn = rs.getTimestamp("created_on");
 
-        if (createdOn != null) {
+//         if (createdOn != null) {
 
-            student.setCreatedOn(createdOn.toLocalDateTime());
-        }
+//             student.setCreatedOn(createdOn.toLocalDateTime());
+//         }
 
-        student.setUpdatedBy(rs.getString("updated_by"));
+//         student.setUpdatedBy(rs.getString("updated_by"));
 
-        Timestamp updatedOn = rs.getTimestamp("updated_on");
+//         Timestamp updatedOn = rs.getTimestamp("updated_on");
 
-        if (updatedOn != null) {
+//         if (updatedOn != null) {
 
-            student.setUpdatedOn(updatedOn.toLocalDateTime());
-        }
+//             student.setUpdatedOn(updatedOn.toLocalDateTime());
+//         }
 
-        student.setDeletedBy(rs.getString("deleted_by"));
+//         student.setDeletedBy(rs.getString("deleted_by"));
 
-        Timestamp deletedOn = rs.getTimestamp("deleted_on");
+//         Timestamp deletedOn = rs.getTimestamp("deleted_on");
 
-        if (deletedOn != null) {
+//         if (deletedOn != null) {
 
-            student.setDeletedOn(deletedOn.toLocalDateTime());
-        }
+//             student.setDeletedOn(deletedOn.toLocalDateTime());
+//         }
 
-        return student;
-    }
-}
+//         return student;
+//     }
+// }
