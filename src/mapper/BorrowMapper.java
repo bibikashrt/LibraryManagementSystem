@@ -24,4 +24,6 @@ public interface BorrowMapper {
     boolean existsByBorrowId(@Param("borrowId") int borrowId);
 
     boolean isBookBorrowed(@Param("bookId") int bookId);
+
+    boolean isBookReturned(@Param("borrowId") int borrowId);
 }

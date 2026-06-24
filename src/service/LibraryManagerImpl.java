@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 
 import config.MyBatisUtil;
+import enums.BorrowStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import mapper.BookMapper;
 import mapper.BorrowMapper;
@@ -151,27 +152,85 @@ public class LibraryManagerImpl implements LibraryManager {
     }
 
     @Override
-    public void borrowBook(BorrowRecord record) {
-        record.setCreatedBy("SYSTEM");
-        record.setCreatedOn(LocalDateTime.now());
+    public void borrowBook(int studentId, int bookId) {
 
-        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
-            BorrowMapper mapper = session.getMapper(BorrowMapper.class);
-            mapper.borrowBook(record);
+        SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(false);
+
+        try {
+            StudentMapper studentMapper = session.getMapper(StudentMapper.class);
+            BookMapper bookMapper = session.getMapper(BookMapper.class);
+            BorrowMapper borrowMapper = session.getMapper(BorrowMapper.class);
+
+            if (!studentMapper.existsById(studentId)) {
+                throw new IllegalArgumentException("Student not found.");
+            }
+
+            if (!bookMapper.existsById(bookId)) {
+                throw new IllegalArgumentException("Book not found.");
+            }
+
+            if (borrowMapper.isBookBorrowed(bookId)) {
+                throw new IllegalStateException("Book is already borrowed.");
+            }
+
+            LocalDate issueDate = LocalDate.now();
+            LocalDate dueDate = issueDate.plusDays(7);
+
+            BorrowRecord record = new BorrowRecord(
+                    0,
+                    studentId,
+                    bookId,
+                    issueDate,
+                    dueDate,
+                    null,
+                    BorrowStatus.BORROWED
+            );
+
+            record.setCreatedBy("SYSTEM");
+            record.setCreatedOn(LocalDateTime.now());
+
+            borrowMapper.borrowBook(record);
+
+            session.commit();
+
+        } catch (Exception e) {
+            session.rollback();
+            throw e;
+        } finally {
+            session.close();
         }
     }
 
     @Override
     public void returnBook(int borrowId, LocalDate returnDate) {
 
-        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(true)) {
+        SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession(false);
+
+        try {
             BorrowMapper mapper = session.getMapper(BorrowMapper.class);
+
+            if (!mapper.existsByBorrowId(borrowId)) {
+                throw new IllegalArgumentException("Borrow record not found.");
+            }
+
+            if (mapper.isBookReturned(borrowId)) {
+                throw new IllegalStateException("Book has already been returned.");
+            }
+
             mapper.returnBook(
                     borrowId,
                     returnDate,
                     "SYSTEM",
                     LocalDateTime.now()
             );
+
+            session.commit();
+
+        } catch (Exception e) {
+            session.rollback();
+            throw e;
+        } finally {
+            session.close();
         }
     }
 
@@ -208,6 +267,22 @@ public class LibraryManagerImpl implements LibraryManager {
         try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
             BorrowMapper mapper = session.getMapper(BorrowMapper.class);
             return !mapper.isBookBorrowed(bookId);
+        }
+    }
+
+    @Override
+    public boolean isStudentExists(int studentId) {
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            return mapper.existsById(studentId);
+        }
+    }
+
+    @Override
+    public boolean isBookExists(int bookId) {
+        try (SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession()) {
+            BookMapper mapper = session.getMapper(BookMapper.class);
+            return mapper.existsById(bookId);
         }
     }
 }

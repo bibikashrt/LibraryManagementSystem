@@ -3,6 +3,7 @@ package resource;
 import java.time.LocalDate;
 import java.util.List;
 
+import dto.BorrowBookRequest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -53,55 +54,55 @@ public class BorrowResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response borrowBook(BorrowRecord record) {
+    public Response borrowBook(BorrowBookRequest request) {
+        try {
+            library.borrowBook(request.getStudentId(), request.getBookId());
 
-        if (library.isBorrowRecordExists(
-                record.getBorrowId())) {
+            return Response.status(Response.Status.CREATED)
+                    .entity("Book borrowed successfully.")
+                    .build();
 
-            return Response.status(
-                    Response.Status.CONFLICT)
-                    .entity("Borrow ID already exists.")
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .build();
+
+        } catch (IllegalStateException e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(e.getMessage())
+                    .build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Failed to borrow book.")
                     .build();
         }
-
-        if (!library.isBookAvailable(
-                record.getBookId())) {
-
-            return Response.status(
-                    Response.Status.CONFLICT)
-                    .entity("Book is already borrowed.")
-                    .build();
-        }
-
-        library.borrowBook(record);
-
-        return Response.status(
-                Response.Status.CREATED)
-                .entity("Book borrowed successfully.")
-                .build();
     }
 
     @PUT
     @Path("/{borrowId}/return")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response returnBook(
-            @PathParam("borrowId") int borrowId) {
+    public Response returnBook(@PathParam("borrowId") int borrowId) {
+        try {
+            library.returnBook(borrowId, LocalDate.now());
 
-        if (!library.isBorrowRecordExists(
-                borrowId)) {
+            return Response.ok("Book returned successfully.")
+                    .build();
 
-            return Response.status(
-                    Response.Status.NOT_FOUND)
-                    .entity("Borrow record not found.")
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .build();
+
+        } catch (IllegalStateException e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(e.getMessage())
+                    .build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Failed to return book.")
                     .build();
         }
-
-        library.returnBook(
-                borrowId,
-                LocalDate.now());
-
-        return Response.ok(
-                "Book returned successfully.")
-                .build();
     }
 }

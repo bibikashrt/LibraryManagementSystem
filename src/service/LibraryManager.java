@@ -2,6 +2,7 @@ package service;
 
 import java.time.LocalDate;
 import java.util.List;
+
 import model.Book;
 import model.BorrowRecord;
 import model.Student;
@@ -32,7 +33,7 @@ public interface LibraryManager {
 
     void deleteStudent(Student student);
 
-    void borrowBook(BorrowRecord record);
+    void borrowBook(int studentId, int bookId);
 
     void returnBook(int borrowId, LocalDate returnDate);
 
@@ -43,4 +44,8 @@ public interface LibraryManager {
     boolean isBorrowRecordExists(int borrowId);
 
     boolean isBookAvailable(int bookId);
+
+    boolean isStudentExists(int studentId);
+
+    boolean isBookExists(int bookId);
 }

@@ -1,14 +1,15 @@
 package ui;
 
-import enums.BorrowStatus;
+import java.time.LocalDate;
+import java.time.Year;
+import java.util.List;
+import java.util.Scanner;
+
 import enums.ConfirmationOption;
 import enums.MenuOption;
 import enums.StudentUpdateOption;
 import enums.UpdateOption;
 import exception.LibraryException;
-import java.time.LocalDate;
-import java.time.Year;
-import java.util.*;
 import model.Book;
 import model.BorrowRecord;
 import model.Student;
@@ -643,27 +644,19 @@ public class LibraryConsoleApp {
             return;
         }
 
-        LocalDate issueDate = LocalDate.now();
-
-        LocalDate dueDate = issueDate.plusDays(14);
-
-        BorrowRecord record = new BorrowRecord(
-                0,
-                studentId,
-                bookId,
-                issueDate,
-                dueDate,
-                null,
-                BorrowStatus.BORROWED
-        );
-
-        library.borrowBook(record);
-
+        // LocalDate issueDate = LocalDate.now();
+        // LocalDate dueDate = issueDate.plusDays(14);
+        // BorrowRecord record = new BorrowRecord(
+        //         0,
+        //         studentId,
+        //         bookId,
+        //         issueDate,
+        //         dueDate,
+        //         null,
+        //         BorrowStatus.BORROWED
+        // );
+        library.borrowBook(studentId, bookId);
         System.out.println("\nBook borrowed successfully.");
-
-        System.out.println("Issue Date : " + issueDate);
-
-        System.out.println("Due Date   : " + dueDate);
     }
 
     private void handleReturnBook() {
